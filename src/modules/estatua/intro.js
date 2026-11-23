@@ -15,8 +15,10 @@ export function createIntro(ctx, { statue, sketch }) {
   const q = new URLSearchParams(location.search);
   const forced = import.meta.env.DEV && q.has('intro');
   const off = import.meta.env.DEV && (q.has('nointro') || q.has('p')); // capturas de control: sin intro
-  const active = (!seen || forced) && !off && !ctx.reducedMotion;
-  if (!active) document.documentElement.classList.remove('con-intro');
+  // Versión película: la apertura es DOM (ui/pelicula.js, aparece antes que el 3D). Esta intro 3D queda apagada
+  // (INTRO.enabled = false en config.js); si se prende, vuelve tal cual era.
+  const active = INTRO.enabled !== false && (!seen || forced) && !off && !ctx.reducedMotion;
+  if (!active) document.documentElement.classList.remove('con-intro', 'en-intro');
   else document.documentElement.classList.add('en-intro'); // los textos esperan a que termine
 
   const u = { uOpacity: { value: active ? 1 : 0 }, uFlash: { value: 0 }, uColor: { value: new THREE.Color('#FFF4DE') } };

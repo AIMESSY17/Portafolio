@@ -1,0 +1,106 @@
+/* ===== La película: apertura, franjas, capítulos y créditos =====
+   Cinzel para lo "de película" (presenta, capítulos, roles de los créditos); Instrument Serif para nombres. */
+:root { --font-cine: 'Cinzel', 'Trajan Pro', 'Times New Roman', serif; }
+
+/* ---------- apertura ---------- */
+@property --iris { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+.apertura {
+  -webkit-mask: radial-gradient(circle at 50% 46%, transparent calc(var(--iris) - 16%), #000 var(--iris));
+          mask: radial-gradient(circle at 50% 46%, transparent calc(var(--iris) - 16%), #000 var(--iris));
+  animation: iris 1.4s cubic-bezier(0.65, 0, 0.35, 1) 4s forwards;
+  pointer-events: auto;
+  cursor: pointer;
+}
+@keyframes iris { to { --iris: 140%; } }
+.apertura__presenta {
+  position: absolute; left: 0; right: 0; top: calc(50% + min(31vh, 64vw)); margin: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  font: 400 clamp(11px, 1.05vw, 14px)/1 var(--font-cine); letter-spacing: 0.42em; text-transform: uppercase;
+  color: #e9d29a; opacity: 0;
+  animation: presenta 1.6s cubic-bezier(0.16, 1, 0.3, 1) 2.35s forwards;
+}
+.apertura__marca { font-weight: 500; letter-spacing: 0.34em; color: #f1d27a; }
+.apertura__pres { font-size: 0.78em; letter-spacing: 0.6em; color: rgba(233, 210, 154, 0.7); }
+@keyframes presenta { from { opacity: 0; transform: translateY(8px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+.apertura__saltar {
+  position: absolute; left: 0; right: 0; bottom: calc(var(--franja, 9vh) + 18px); margin: 0; text-align: center;
+  font: 300 10px/1 var(--font-datos); letter-spacing: 0.3em; text-transform: uppercase; color: rgba(233, 210, 154, 0.38);
+  opacity: 0; animation: presenta 1s ease 1.2s forwards;
+}
+html.apertura-salto .apertura { animation: none; opacity: 0; transition: opacity 0.42s cubic-bezier(0.65, 0, 0.35, 1); }
+/* mientras dura la apertura no se ve la interfaz */
+html.con-apertura .menu, html.con-apertura .wa, html.con-apertura .sonido, html.con-apertura .hero { opacity: 0 !important; pointer-events: none; }
+
+/* ---------- franjas: más finas en pantallas verticales (2.39:1 taparía casi todo el celular) ---------- */
+@media (max-aspect-ratio: 1/1) { .franjas i { --franja: 7vh; } }
+
+/* ---------- título de capítulo ---------- */
+.capitulo {
+  position: fixed; left: 0; right: 0; top: 50%; z-index: 56; transform: translateY(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  pointer-events: none; text-align: center; color: #f6ecd2; opacity: 0;
+  text-shadow: 0 0 30px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+.capitulo__num { font: 400 clamp(12px, 1.1vw, 15px)/1 var(--font-cine); letter-spacing: 0.5em; color: var(--oro-brillo); padding-left: 0.5em; }
+.capitulo__num::before, .capitulo__num::after { content: ''; display: inline-block; width: 38px; height: 1px; margin: 0 16px; vertical-align: middle; background: currentColor; opacity: 0.6; }
+.capitulo__titulo { font: 400 clamp(30px, 3.6vw, 58px)/1 var(--font-cine); letter-spacing: 0.18em; padding-left: 0.18em; text-transform: uppercase; }
+.capitulo.is-on { animation: capitulo 1.5s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+@keyframes capitulo {
+  0% { opacity: 0; letter-spacing: 0.1em; filter: blur(6px); }
+  24% { opacity: 1; filter: none; }
+  72% { opacity: 1; }
+  100% { opacity: 0; filter: blur(3px); }
+}
+
+/* ---------- créditos finales (a la hora azul) ---------- */
+.creditos {
+  position: fixed; inset: 0; z-index: 3; pointer-events: none; color: #f3eee6;
+  opacity: 0; visibility: hidden; transition: opacity 1.1s var(--ease-entrada), visibility 0s linear 1.1s;
+}
+.creditos.visible { opacity: 1; visibility: visible; transition: opacity 1.1s var(--ease-entrada); }
+.creditos__rollo {
+  position: absolute; left: clamp(16px, 9vw, 180px); top: 0; width: min(520px, calc(100vw - 32px));
+  text-align: center; transform: translateY(105vh); text-shadow: 0 2px 24px rgba(4, 6, 20, 0.55);
+}
+.creditos.rodando .creditos__rollo { animation: rollo var(--rollo-dur, 13s) linear forwards; pointer-events: auto; cursor: pointer; }
+.creditos.fin .creditos__rollo { display: none; }
+@keyframes rollo { from { transform: translateY(105vh); } to { transform: translateY(-100%); } }
+.cr-titulo { margin: 0 0 9vh; font: 400 clamp(26px, 2.6vw, 40px)/1 var(--font-cine); letter-spacing: 0.32em; color: var(--oro-brillo); }
+.cr-bloque { margin: 0 0 6.5vh; }
+.cr-rol { margin: 0 0 12px; font: 400 11px/1.3 var(--font-cine); letter-spacing: 0.34em; text-transform: uppercase; color: rgba(241, 210, 122, 0.82); }
+.cr-nombre { margin: 0; font: 400 clamp(22px, 2vw, 30px)/1.3 var(--font-serif); }
+.cr-obra { margin: 0 0 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.cr-obra span { font: 400 clamp(22px, 2vw, 30px)/1.15 var(--font-serif); }
+.cr-obra i { font: italic 400 15px/1.2 var(--font-serif); color: rgba(243, 238, 230, 0.66); }
+.creditos__fin {
+  position: absolute; left: clamp(16px, 9vw, 180px); bottom: clamp(70px, 14vh, 170px); max-width: min(680px, calc(100vw - 32px));
+  opacity: 0; transform: translateY(16px); text-shadow: 0 2px 30px rgba(4, 6, 20, 0.5);
+}
+.creditos.fin .creditos__fin { opacity: 1; transform: none; transition: opacity 1.4s var(--ease-entrada), transform 1.4s var(--ease-entrada); pointer-events: auto; }
+.creditos__hablemos { margin: 0; font: 400 clamp(72px, 10vw, 168px)/0.9 var(--font-serif); letter-spacing: -0.02em; }
+.creditos__links { display: flex; flex-wrap: wrap; gap: 10px clamp(26px, 3.4vw, 52px); margin: clamp(22px, 3.6vh, 40px) 0 0; }
+.creditos__links a {
+  position: relative; display: inline-flex; align-items: center; min-height: 48px;
+  font: italic 400 clamp(26px, 2.4vw, 36px)/1.1 var(--font-serif); color: #f3eee6; text-decoration: none;
+}
+.creditos__links a::after { content: ''; position: absolute; left: 0; right: 0; bottom: 6px; height: 1px; background: var(--oro-brillo); transform: scaleX(0.3); transform-origin: left; opacity: 0.75; transition: transform 0.7s var(--ease-entrada); }
+.creditos__links a:hover::after, .creditos__links a:focus-visible::after { transform: scaleX(1); opacity: 1; }
+.creditos__links a:focus-visible { outline: 1px solid var(--oro-brillo); outline-offset: 4px; }
+.creditos__links a[hidden] { display: none; }
+.creditos__legal { margin-top: clamp(22px, 4vh, 44px); font: 300 11px/1.55 var(--font-datos); letter-spacing: 0.03em; color: rgba(243, 238, 230, 0.6); max-width: 64ch; }
+.creditos__legal p { margin: 0; }
+.creditos__legal a { color: rgba(243, 238, 230, 0.82); text-decoration: none; pointer-events: auto; }
+.creditos__legal a:hover, .creditos__legal a:focus-visible { color: var(--oro-brillo); }
+.creditos__medida { margin-top: 10px !important; font-size: 11px; color: rgba(241, 210, 122, 0.72); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 699px), (max-aspect-ratio: 9/10) {
+  .creditos__rollo { left: 16px; right: 16px; width: auto; }
+  .creditos__fin { left: 16px; right: 16px; bottom: 96px; }
+  .creditos__hablemos { font-size: clamp(64px, 19vw, 96px); }
+  .creditos__legal { font-size: 10.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .apertura { animation: none; display: none !important; }
+  .capitulo.is-on { animation: capitulo-r 1.5s linear forwards; }
+  @keyframes capitulo-r { 0%, 100% { opacity: 0; } 20%, 80% { opacity: 1; } }
+}

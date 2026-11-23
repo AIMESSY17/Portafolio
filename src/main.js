@@ -25,7 +25,7 @@ if (!hasWebGL()) {
 
 async function start() {
   const core = createCore({ sections, stage, overlay });
-  const ui = setupUI({ sections, scroll: core.scroll, bus: core.bus });
+  const ui = setupUI({ sections, scroll: core.scroll, bus: core.bus, shared: core.shared });
 
   if (only === 'fondo') {
     await core.mount('fondo', createFondo);
@@ -51,8 +51,7 @@ async function start() {
     core.scroll.scrollTo(Math.max(0, (P - 0.5) * innerHeight), { immediate: true, force: true });
     core.cameraRig.snap();
   }
-  ui.ready();
-  core.apis.estatua?.startIntro?.(); // primera visita: la silueta se dibuja en oro (si no, no hace nada)
+  ui.ready(); // se va el velo (póster) y arranca la película (apertura → capítulo I)
   if (import.meta.env.DEV) window.core = core;
 }
 

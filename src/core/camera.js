@@ -31,6 +31,7 @@ export function createCameraRig({ shared, isMobile, reducedMotion = false }) {
   const tmpDir = new THREE.Vector3();
   let aspect = 1;
   let first = true;
+  let breath = 0;
 
   function computeFit() {
     // distancia necesaria para ver el ancho mínimo en el plano del target
@@ -112,6 +113,14 @@ export function createCameraRig({ shared, isMobile, reducedMotion = false }) {
         current.target.copy(tmpTarget);
       }
       camera.position.copy(current.position);
+      // cámara viva (película): una respiración mínima, ±1 cm, como una cámara en mano muy quieta. Sin movimiento
+      // reducido. Dos senos lentos y desfasados (no se repite a la vista), apagada durante un acercamiento.
+      if (!reducedMotion) {
+        breath += delta;
+        const b = 0.01 * (1 - focus.blend);
+        camera.position.x += (Math.sin(breath * 0.71) * 0.6 + Math.sin(breath * 1.37 + 1.1) * 0.4) * b;
+        camera.position.y += (Math.sin(breath * 0.53 + 2.0) * 0.6 + Math.sin(breath * 1.13) * 0.4) * b;
+      }
       camera.lookAt(current.target);
       camera.updateMatrixWorld();
     },

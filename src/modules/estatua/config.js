@@ -163,7 +163,7 @@ export const FRAGMENTOS = {
 };
 
 // Intro de la primera visita (intro.js): la silueta se dibuja en oro sobre negro y se abre el cielo
-export const INTRO = { draw: 2, flash: 0.25, open: 1.3, key: 'samotracia.intro.v1' };
+export const INTRO = { enabled: false, draw: 2, flash: 0.25, open: 1.3, key: 'samotracia.intro.v1' }; // película: la apertura es DOM
 
 // Alas de luz: partículas que se desprenden de las puntas de las alas y se lleva el viento.
 // Ciclo de vida: blanca → dorada → ámbar → se apaga. Leve iridiscencia (dorado → rosado → celeste).

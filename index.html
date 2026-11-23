@@ -1,35 +1,79 @@
 <!doctype html>
-<html lang="es" data-tono="oscuro">
+<html lang="es" data-tono="oscuro" data-marca="Javier Baez">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#E7ECEA" />
-    <title>Diseño y desarrollo web — Comodoro Rivadavia</title>
-    <meta name="description" content="Portfolio de diseño y desarrollo web en Comodoro Rivadavia: la Victoria de Samotracia hecha de luz, bajando del cielo al mar entre nuestras obras." />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23E7ECEA'/%3E%3Cpath d='M9 22c3-1 5-4 7-10 1 5 3 8 7 10-5 0-9-1-14 0z' fill='%23C9A227'/%3E%3C/svg%3E" />
+    <meta name="theme-color" content="#0b0907" />
+    <!-- MARCA: el nombre que firma la película está en data-marca (arriba) y en estos títulos. Cambialo en los dos. -->
+    <title>Javier Baez — Diseño y desarrollo web</title>
+    <meta name="description" content="Una película interactiva: la Victoria de Samotracia baja del cielo al mar, se transmuta en oro y corona las obras. Diseño y desarrollo web en Comodoro Rivadavia." />
+    <link rel="canonical" href="/" />
+    <!-- compartir (Open Graph / Twitter) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Javier Baez — Diseño y desarrollo web" />
+    <meta property="og:description" content="Convertimos tu negocio en oro. Una película interactiva con las obras: tiendas, catálogos y portfolios que venden por WhatsApp." />
+    <meta property="og:image" content="/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="es_AR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Javier Baez — Diseño y desarrollo web" />
+    <meta name="twitter:description" content="Convertimos tu negocio en oro. Una película interactiva con las obras." />
+    <meta name="twitter:image" content="/og.jpg" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@200;300;400&display=swap" rel="stylesheet" />
+    <link rel="preload" href="/assets/fuentes/cinzel.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/assets/estatua/victoria-lod0.glb" as="fetch" type="model/gltf-binary" crossorigin />
-    <!-- primera visita: el velo de carga es negro (después viene la intro). Sin almacenamiento, también. -->
-    <script>try{if(localStorage.getItem('samotracia.intro.v1')!=='1'&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('con-intro')}catch(e){document.documentElement.classList.add('con-intro')}</script>
+    <!-- primera visita: apertura (localStorage con try/catch: sin almacenamiento, se muestra). ?nointro y ?p= la apagan (capturas). -->
+    <script>(function(){var d=document.documentElement,q=location.search,m=matchMedia('(prefers-reduced-motion: reduce)').matches,v=false;try{v=localStorage.getItem('samotracia.apertura.v1')==='1'}catch(e){}if(!v&&!m&&!/[?&](nointro|p)=?/.test(q))d.classList.add('con-apertura');window.__t0=performance.now()})()</script>
+    <style>
+      /* crítico: la apertura y las franjas se ven antes de que cargue cualquier otra cosa */
+      @font-face { font-family: 'Cinzel'; src: url('/assets/fuentes/cinzel.woff2') format('woff2'); font-weight: 400 900; font-display: swap; }
+      html, body { margin: 0; background: #0b0907; }
+      .velo { position: fixed; inset: 0; z-index: 50; background: #0b0907 var(--poster, none) center / cover no-repeat; pointer-events: none; }
+      .apertura { position: fixed; inset: 0; z-index: 60; display: none; background: #000; color: #e9d29a; }
+      html.con-apertura .apertura { display: block; }
+      .apertura__silueta { position: absolute; left: 50%; top: 50%; height: min(58vh, 120vw); transform: translate(-50%, -54%); overflow: visible; }
+      .apertura__silueta path { fill: none; stroke: #d9b25a; stroke-width: 2.4; stroke-dasharray: 1 1; stroke-dashoffset: 1; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 6px rgba(241, 210, 122, 0.55)); animation: trazo 2s cubic-bezier(0.65, 0, 0.35, 1) 0.35s forwards; }
+      @keyframes trazo { to { stroke-dashoffset: 0; } }
+      .franjas { position: fixed; inset: 0; z-index: 55; pointer-events: none; }
+      .franjas i { position: absolute; left: 0; right: 0; height: var(--franja, max(0px, min(14vh, calc((100vh - 100vw / 2.39) / 2)))); background: #000; transform: scaleY(0); transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1); }
+      .franjas i:first-child { top: 0; transform-origin: top; }
+      .franjas i:last-child { bottom: 0; transform-origin: bottom; }
+      html.con-apertura .franjas i, html.franjas-on .franjas i { transform: scaleY(1); }
+    </style>
   </head>
   <body>
     <!-- Escenario 3D fijo (el canvas WebGL) -->
     <div id="stage" class="stage" aria-hidden="true"></div>
 
-    <!-- Velo de carga: se va cuando todo está compilado y subido a la placa de video -->
+    <!-- Velo / póster: una imagen fija del cielo mientras el 3D carga atrás; se funde cuando todo está compilado -->
     <div class="velo" aria-hidden="true"><span class="velo__linea"><i></i></span></div>
 
-    <!-- Menú chico, arriba a la derecha: abre la lista de proyectos (la llena src/ui/ui.js) -->
-    <nav id="menu" class="menu" aria-label="Menú">
+    <!-- Franjas de cine (2.39:1): entran en las transiciones importantes -->
+    <div class="franjas" aria-hidden="true"><i></i><i></i></div>
+
+    <!-- Apertura (primera visita): una línea de oro dibuja la silueta y "[marca] presenta". Clic, tecla o scroll la saltan. -->
+    <div class="apertura" aria-hidden="true">
+      <svg class="apertura__silueta" viewBox="0 0 608 1115" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path pathLength="1" d="M175.2 8.0C187.5 7.7 203.5 11.4 215.2 13.7C226.8 16.1 232.2 15.1 245.2 22.0C258.2 28.9 278.8 44.5 293.2 55.4C307.5 66.3 321.8 80.3 331.2 87.4C340.5 94.4 342.8 94.7 349.2 97.5C355.5 100.3 360.0 103.8 369.2 104.2C378.3 104.5 392.2 107.5 404.2 99.5C416.2 91.6 430.8 67.3 441.2 56.5C451.5 45.7 457.3 40.9 466.2 34.7C475.0 28.6 485.8 23.4 494.2 19.6C502.5 15.9 508.7 13.8 516.2 12.1C523.7 10.4 534.0 9.5 539.2 9.5C544.3 9.6 544.5 10.2 547.0 12.2C549.5 14.2 551.0 15.7 554.1 21.5C557.2 27.4 563.9 40.4 565.4 47.5C566.8 54.7 562.2 59.9 562.9 64.5C563.7 69.2 568.6 72.5 569.9 75.5C571.2 78.5 571.6 78.2 570.8 82.5C570.0 86.9 570.2 95.0 565.2 101.5C560.1 108.1 546.3 115.6 540.5 121.6C534.6 127.6 530.0 131.9 530.0 137.5C530.0 143.2 537.2 148.5 540.3 155.5C543.4 162.5 547.3 174.4 548.6 179.5C550.0 184.7 551.1 180.4 548.4 186.5C545.7 192.7 539.3 206.7 532.5 216.5C525.7 226.4 513.3 236.7 507.5 245.5C501.7 254.4 501.2 256.7 497.6 269.5C494.1 282.4 487.5 307.5 486.1 322.5C484.7 337.5 487.3 344.2 489.5 359.5C491.6 374.9 496.3 403.5 499.2 414.5C502.1 425.5 503.0 417.7 506.7 425.5C510.5 433.4 517.0 451.7 521.7 461.5C526.5 471.4 529.6 476.2 535.4 484.5C541.1 492.9 553.4 505.4 556.2 511.5C558.9 517.7 556.7 516.0 551.9 521.5C547.1 527.1 531.8 538.4 527.3 544.7C522.7 551.1 528.3 555.5 524.6 559.6C521.0 563.7 509.5 566.7 505.2 569.4C500.8 572.0 501.3 568.0 498.5 575.5C495.6 583.1 490.1 605.2 488.1 614.5C486.1 623.9 484.0 620.4 486.3 631.5C488.5 642.7 498.0 665.5 501.5 681.5C505.1 697.5 502.6 710.9 507.7 727.5C512.8 744.2 526.4 770.0 532.3 781.5C538.1 793.0 539.5 789.9 542.7 796.5C545.9 803.2 551.6 815.5 551.5 821.5C551.5 827.5 550.4 827.8 542.2 832.5C534.0 837.3 511.5 845.6 502.2 850.3C492.8 855.0 490.8 856.8 486.2 860.8C481.6 864.9 477.9 868.3 474.6 874.5C471.3 880.8 467.5 893.5 466.5 898.5C465.4 903.5 466.1 901.0 468.3 904.5C470.5 908.0 474.0 914.0 479.5 919.5C485.1 925.0 494.9 931.0 501.4 937.5C507.8 944.0 514.5 952.8 518.3 958.5C522.1 964.3 520.9 967.8 524.1 972.3C527.3 976.7 533.4 981.6 537.5 985.2C541.7 988.7 543.7 991.3 549.2 993.5C554.6 995.8 564.5 996.4 570.2 998.6C575.8 1000.9 580.5 1004.3 583.1 1006.9C585.7 1009.6 584.8 1004.3 585.7 1014.5C586.7 1024.8 586.3 1056.8 588.7 1068.5C591.1 1080.3 600.9 1082.1 600.0 1084.8C599.1 1087.5 590.2 1081.8 583.2 1084.9C576.2 1088.1 563.5 1100.2 558.2 1103.7C552.8 1107.3 557.0 1106.4 551.2 1106.4C545.3 1106.3 533.7 1103.6 523.2 1103.6C512.7 1103.7 512.5 1106.1 488.2 1106.5C463.8 1107.0 432.7 1106.5 377.2 1106.5C321.7 1106.5 194.2 1106.9 155.2 1106.5C116.2 1106.2 145.9 1105.6 143.3 1104.3C140.6 1102.9 140.3 1108.5 139.3 1098.5C138.3 1088.6 137.2 1058.0 137.2 1044.5C137.2 1031.0 137.8 1023.5 139.2 1017.5C140.6 1011.6 142.9 1011.4 145.5 1008.9C148.2 1006.4 144.6 1005.5 155.2 1002.6C165.8 999.7 198.3 995.9 209.0 991.5C219.7 987.2 213.2 983.4 219.1 976.5C225.0 969.7 239.2 956.4 244.2 950.5C249.1 944.7 246.9 949.4 248.7 941.5C250.5 933.7 253.7 914.5 254.9 903.5C256.2 892.5 252.4 886.4 256.2 875.5C260.0 864.7 273.1 847.5 277.6 838.5C282.1 829.5 282.1 827.5 283.2 821.5C284.2 815.5 285.0 812.7 283.9 802.5C282.8 792.4 278.8 768.2 276.8 760.9C274.9 753.6 276.1 758.5 272.2 758.7C268.2 759.0 257.3 762.1 253.2 762.4C249.1 762.6 249.0 761.5 247.5 760.4C246.1 759.2 243.7 763.2 244.5 755.5C245.3 747.9 252.2 723.7 252.4 714.5C252.5 705.4 247.7 707.2 245.3 700.5C242.8 693.9 238.5 687.4 237.5 674.5C236.5 661.7 238.5 634.7 239.3 623.5C240.0 612.4 242.0 613.4 242.2 607.5C242.4 601.7 239.4 593.9 240.6 588.5C241.9 583.2 247.7 579.2 249.7 575.3C251.8 571.4 249.5 568.2 253.1 565.2C256.7 562.2 266.6 560.2 271.2 557.1C275.8 554.0 278.1 552.8 280.5 546.5C283.0 540.3 286.0 528.9 286.0 519.5C286.0 510.2 280.7 504.2 280.4 490.5C280.0 476.9 282.4 448.9 284.0 437.5C285.6 426.2 282.6 436.2 289.9 422.5C297.2 408.9 318.7 378.7 327.7 355.5C336.8 332.4 341.3 299.7 344.4 283.5C347.4 267.4 346.0 263.8 346.0 258.5C346.0 253.3 345.6 253.4 344.6 251.8C343.7 250.2 345.4 249.0 340.2 248.8C334.9 248.6 319.3 250.6 313.2 250.5C307.0 250.3 306.7 247.3 303.2 247.7C299.7 248.2 295.3 252.2 292.2 253.0C289.0 253.8 289.5 253.8 284.2 252.8C278.8 251.8 270.7 250.3 260.2 247.0C249.7 243.7 229.1 237.2 221.2 233.1C213.3 229.0 214.8 231.0 212.9 222.5C211.0 214.1 211.7 190.5 209.5 182.5C207.4 174.6 206.4 176.6 200.2 174.8C194.0 173.1 180.8 172.3 172.2 172.0C163.5 171.7 154.5 173.3 148.2 173.3C141.8 173.2 139.2 172.9 134.2 171.6C129.2 170.4 131.7 167.2 118.2 165.7C104.7 164.3 69.9 166.0 53.2 162.9C36.5 159.8 25.4 153.1 17.9 147.2C10.4 141.3 9.5 132.2 8.0 127.5C6.5 122.9 7.3 124.0 8.6 119.5C10.0 115.0 10.4 109.4 16.2 100.5C21.9 91.7 32.2 76.3 43.2 66.3C54.2 56.3 69.0 47.8 82.2 40.5C95.3 33.2 112.3 26.6 122.2 22.5C132.0 18.3 132.3 17.9 141.2 15.5C150.0 13.0 162.8 8.3 175.2 8.0Z"/></svg>
+      <p class="apertura__presenta"><span class="apertura__marca" data-marca-texto>Javier Baez</span><span class="apertura__pres">presenta</span></p>
+      <p class="apertura__saltar">Tocá para saltar</p>
+    </div>
+
+    <!-- Título de capítulo (aparece y se va en 1,5 s) -->
+    <div class="capitulo" aria-live="polite" aria-atomic="true"><span class="capitulo__num"></span><span class="capitulo__titulo"></span></div>
+
+    <!-- Menú chico, arriba a la derecha: capítulos y obras para saltar directo (lo llena src/ui/ui.js) -->
+    <nav id="menu" class="menu" aria-label="Capítulos">
       <button type="button" class="menu__btn" aria-expanded="false" aria-controls="menu-panel">
-        <span class="menu__txt">Obras</span>
+        <span class="menu__txt">Capítulos</span>
         <i class="menu__ico" aria-hidden="true"><b></b><b></b></i>
       </button>
       <div id="menu-panel" class="menu__panel" hidden>
         <ol class="menu__lista" data-menu-lista></ol>
-        <p class="menu__pie"><a href="#hero" data-menu-ir="inicio">Inicio</a><a href="#contacto" data-menu-ir="contacto">Contacto</a></p>
       </div>
     </nav>
     <!-- WhatsApp fijo, abajo a la derecha -->
@@ -39,51 +83,65 @@
     <!-- Capa de texto (src/ui/) -->
     <main id="content" class="content">
       <section id="hero" data-section="hero" class="section section--hero">
+        <h1 class="sr-only">Javier Baez — Diseño y desarrollo web</h1>
         <div class="hero">
-          <p class="hero__linea">Diseño y desarrollo web — Comodoro Rivadavia</p>
+          <p class="hero__linea">Convertimos tu negocio en oro</p>
           <span class="hero__bajar" aria-hidden="true"><i></i></span>
         </div>
       </section>
 
-      <!-- La Victoria atraviesa las nubes y cae la tarde sobre el mar (solo alto de scroll) -->
+      <!-- II — La caída (solo alto de scroll: la toma es automática) -->
       <section id="descenso" data-section="descenso" class="section" aria-hidden="true"></section>
 
-      <!-- Una sala de 100vh por proyecto (el alto lo pone src/config/sections.js) -->
+      <!-- III — Las obras: una sala de 100vh por proyecto (el alto lo pone src/config/sections.js) -->
       <section id="obras" data-section="obras" class="section section--obras" aria-label="Obras">
         <ul class="fallback-list" data-fallback-projects hidden></ul>
       </section>
 
-      <section id="contacto" data-section="contacto" class="section section--contacto">
-        <div class="contacto">
-          <h2 class="contacto__titulo">Hablemos.</h2>
-          <p class="contacto__links">
-            <a data-contacto="whatsapp" target="_blank" rel="noopener" hidden>WhatsApp</a>
-            <a data-contacto="mail" hidden>Mail</a>
-          </p>
-        </div>
-        <footer class="credito">
-          <p>
-            “<a href="https://sketchfab.com/3d-models/nike-of-samothrace-0ba90c17bcc342b5bf6f08ea766662dd" target="_blank" rel="noopener">Nike of Samothrace</a>”
-            by <a href="https://sketchfab.com/p_moraiti" target="_blank" rel="noopener">p_moraiti</a>,
-            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY</a>
-            · Cielos: <a href="https://polyhaven.com/hdris" target="_blank" rel="noopener">Poly Haven</a> (CC0)
-            · Vía Láctea: <a href="https://www.eso.org/public/images/eso0932a/" target="_blank" rel="noopener">ESO/S. Brunier</a>, CC BY 4.0
-          </p>
-        </footer>
-      </section>
+      <!-- IV — Los créditos: a la hora azul suben los créditos y quedan "Hablemos." y los contactos -->
+      <section id="contacto" data-section="contacto" class="section section--contacto" aria-label="Créditos y contacto"></section>
     </main>
 
-    <!-- Ficha de la sala actual (fija, debajo de la ventana grande): la llena src/ui/ui.js -->
+    <!-- Créditos finales (fijos, suben al llegar a la hora azul; los llena src/ui/pelicula.js) -->
+    <div class="creditos" data-creditos>
+      <div class="creditos__rollo" data-rollo aria-hidden="true"></div>
+      <div class="creditos__fin">
+        <h2 class="creditos__hablemos">Hablemos.</h2>
+        <p class="creditos__links">
+          <a data-contacto="whatsapp" target="_blank" rel="noopener" hidden>WhatsApp</a>
+          <a data-contacto="mail" hidden>Mail</a>
+        </p>
+        <footer class="creditos__legal">
+          <p>
+            “<a href="https://sketchfab.com/3d-models/nike-of-samothrace-0ba90c17bcc342b5bf6f08ea766662dd" target="_blank" rel="noopener">Nike of Samothrace</a>” de
+            <a href="https://sketchfab.com/p_moraiti" target="_blank" rel="noopener">p_moraiti</a>,
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>
+            · Vía Láctea: <a href="https://www.eso.org/public/images/uhd_9180_panorama_eq/" target="_blank" rel="noopener">Y. Beletsky (LCO)/ESO</a>, CC BY 4.0
+            · Cielos: <a href="https://polyhaven.com/hdris" target="_blank" rel="noopener">Poly Haven</a> (CC0)
+            · Mármol: <a href="https://ambientcg.com" target="_blank" rel="noopener">ambientCG</a> (CC0)
+            · Texturas: <a href="https://www.sharetextures.com" target="_blank" rel="noopener">ShareTextures</a>
+            · LUTs: <a href="https://www.freevisuals.net" target="_blank" rel="noopener">FreeVisuals</a>
+            · Olas: jasinski (Freesound, CC0) · Cinzel (OFL)
+          </p>
+          <p class="creditos__medida" data-medida></p>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Ficha de la sala actual (fija, junto a la ventana grande): la llena src/ui/ui.js -->
     <aside id="sala" class="sala" aria-live="polite">
       <div class="sala__a">
         <p class="sala__num"></p>
+        <p class="sala__unica"></p>
         <h2 class="sala__nombre"></h2>
         <p class="sala__rubro"></p>
       </div>
-      <div class="sala__b">
-        <p class="sala__linea"></p>
+      <dl class="sala__b">
+        <div class="sala__fila" data-fila="necesitaba"><dt>Necesitaba</dt><dd></dd></div>
+        <div class="sala__fila" data-fila="hicimos"><dt>Hicimos</dt><dd></dd></div>
+        <div class="sala__fila" data-fila="resultado"><dt>Resultado</dt><dd></dd></div>
         <a class="sala__link" target="_blank" rel="noopener" hidden><span>Ver sitio</span> ↗</a>
-      </div>
+      </dl>
     </aside>
 
     <!-- Capa superior para módulos (visor de proyectos) -->
