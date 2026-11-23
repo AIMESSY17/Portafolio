@@ -10,7 +10,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Three.js en su propio archivo: se cachea aparte y no se vuelve a bajar en cada deploy
-        manualChunks: { three: ['three'], anim: ['gsap', 'lenis'] },
+        manualChunks: { three: ['three'], post: ['postprocessing'], anim: ['gsap', 'lenis'] },
       },
     },
   },

@@ -26,12 +26,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@200;300;400&display=swap" rel="stylesheet" />
     <link rel="preload" href="/assets/fuentes/cinzel.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- póster: una foto fija del cielo mientras el 3D carga atrás (aparece en menos de 2 s) -->
+    <link rel="preload" as="image" href="/assets/poster/cielo-escritorio.webp" media="(min-aspect-ratio: 1/1)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/assets/poster/cielo-celular.webp" media="(max-aspect-ratio: 1/1)" fetchpriority="high" />
     <link rel="preload" href="/assets/estatua/victoria-lod0.glb" as="fetch" type="model/gltf-binary" crossorigin />
     <!-- primera visita: apertura (localStorage con try/catch: sin almacenamiento, se muestra). ?nointro y ?p= la apagan (capturas). -->
     <script>(function(){var d=document.documentElement,q=location.search,m=matchMedia('(prefers-reduced-motion: reduce)').matches,v=false;try{v=localStorage.getItem('samotracia.apertura.v1')==='1'}catch(e){}if(!v&&!m&&!/[?&](nointro|p)=?/.test(q))d.classList.add('con-apertura');window.__t0=performance.now()})()</script>
     <style>
       /* crítico: la apertura y las franjas se ven antes de que cargue cualquier otra cosa */
       @font-face { font-family: 'Cinzel'; src: url('/assets/fuentes/cinzel.woff2') format('woff2'); font-weight: 400 900; font-display: swap; }
+      :root { --poster: url('/assets/poster/cielo-escritorio.webp'); }
+      @media (max-aspect-ratio: 1/1) { :root { --poster: url('/assets/poster/cielo-celular.webp'); } }
       html, body { margin: 0; background: #0b0907; }
       .velo { position: fixed; inset: 0; z-index: 50; background: #0b0907 var(--poster, none) center / cover no-repeat; pointer-events: none; }
       .apertura { position: fixed; inset: 0; z-index: 60; display: none; background: #000; color: #e9d29a; }
@@ -149,5 +154,8 @@
 
     <noscript><p class="noscript">Este portfolio necesita JavaScript para mostrar la experiencia 3D.</p></noscript>
     <script type="module" src="/src/main.js"></script>
+    <!-- Vercel Analytics (se activa en el panel de Vercel; en local no hace nada) -->
+    <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+    <script defer src="/_vercel/insights/script.js"></script>
   </body>
 </html>

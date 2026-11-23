@@ -341,3 +341,6 @@ html.no-webgl .credito, html.no-webgl .credito a { color: rgba(26, 22, 18, 0.6);
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.25s !important; transition-delay: 0s !important; }
 }
+
+/* ?sinui: capturas limpias (póster, imagen para compartir) */
+html.sin-ui .menu, html.sin-ui .wa, html.sin-ui .sonido, html.sin-ui .hero, html.sin-ui .sala, html.sin-ui .creditos, html.sin-ui .capitulo, html.sin-ui .franjas, html.sin-ui .corona-nombre { display: none !important; }

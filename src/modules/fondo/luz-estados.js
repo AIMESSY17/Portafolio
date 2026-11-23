@@ -22,9 +22,9 @@ export const NUMBER_KEYS = [
 // mucho los medios. Por eso la exposición de cada foto va por debajo de 1 y el atardecer (Belfast, muy brumoso)
 // lleva más contraste y saturación: el LUT termina de darle el color.
 const COMUN = {
-  expoDia: 0.6, expoTarde: 0.38, expoCrep: 0.5,
-  contrastDia: 1.12, contrastTarde: 1.45, contrastCrep: 1.12,
-  satDia: 1.12, satTarde: 1.38, satCrep: 1.1,
+  expoDia: 0.6, expoTarde: 0.3, expoCrep: 0.5,
+  contrastDia: 1.12, contrastTarde: 1.62, contrastCrep: 1.12,
+  satDia: 1.12, satTarde: 1.5, satCrep: 1.1,
 };
 
 const DIA = {
@@ -42,7 +42,7 @@ const ATARDECER = {
   sun: '#FFC27A', skyTint: '#FFFFFF', below: '#9B90A6',
   cloudLit: '#FFD9A8', cloudShade: '#6D6384', veil: '#EFE2DA',
   seaDeep: '#16141F', seaShallow: '#463F55', haze: '#B9A6B3', sand: '#2B2730', foam: '#F3E1C8',
-  hemiSky: '#8E86AC', hemiGround: '#4A3F4A', glintGold: '#FFE0A2', glintSilver: '#F5F3FF', horizonte: '#EDB98C', hazeK: 0.36, sunK: 1,
+  hemiSky: '#8E86AC', hemiGround: '#4A3F4A', glintGold: '#FFE0A2', glintSilver: '#F5F3FF', horizonte: '#F0A35F', hazeK: 0.3, sunK: 1,
   belowK: 0, sunI: 2.0, hemiI: 0.16, envI: 1.0, exposure: 0.85,
   glints: 1, spec: 1, glitter: 1, reflI: 1, goldMix: 0.7, detail: 0.55,
 };

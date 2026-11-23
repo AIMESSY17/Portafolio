@@ -2,7 +2,8 @@
 // Orden: montar → esperar el modelo detallado y las capturas (con tope) → precalentar TODO (shaders,
 // texturas, geometrías) → arrancar el loop → sacar el velo. Así nada se estrena en medio del scroll.
 import { createCore } from './core/index.js';
-import { hasWebGL } from './core/renderer.js';
+import { hasWebGL2 } from './core/renderer.js';
+import { startLite } from './ui/lite.js';
 import { sections } from './config/sections.js';
 import { setupUI } from './ui/ui.js';
 import createFondo from './modules/fondo/index.js';
@@ -14,12 +15,14 @@ const stage = document.getElementById('stage');
 const overlay = document.getElementById('overlay');
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-if (!hasWebGL()) {
-  startWithoutWebGL();
+// sin WebGL2 (o ?lite para verla): la versión liviana premium. Con ?sinui la interfaz se esconde (póster, imagen OG).
+if (params.has('sinui')) document.documentElement.classList.add('sin-ui');
+if (!hasWebGL2() || params.has('lite')) {
+  startLite({ motivo: params.has('lite') ? 'pedida' : 'sin-webgl2' });
 } else {
   start().catch((err) => {
     console.error('[main] error al iniciar la escena 3D', err);
-    startWithoutWebGL();
+    startLite({ motivo: 'error' });
   });
 }
 
@@ -52,6 +55,9 @@ async function start() {
     core.cameraRig.snap();
   }
   ui.ready(); // se va el velo (póster) y arranca la película (apertura → capítulo I)
+  // en calidad baja y sin llegar a 30 fps durante 5 s (con la resolución ya en su piso): versión liviana
+  core.bus.on('calidad:piso', () => { core.detener(); startLite({ motivo: 'sin-rendimiento' }); });
+  if (params.has('debug')) import('./ui/debug.js').then((m) => m.setupDebug(core));
   if (import.meta.env.DEV) window.core = core;
 }
 
@@ -73,28 +79,4 @@ function placeholderLights({ THREE, scene, root }) {
   dir.position.set(3, 6, 5);
   root.add(amb, dir);
   return { update() {}, resize() {}, setQuality() {}, dispose() { scene.background = null; } };
-}
-
-// Sin WebGL: la capa de texto + lista de proyectos que abre el mismo visor.
-async function startWithoutWebGL() {
-  document.documentElement.classList.add('no-webgl', 'is-ready', 'en-contacto');
-  setupUI({ sections, scroll: null });
-  const [{ default: projects }, { createViewer }] = await Promise.all([
-    import('./data/projects.json'),
-    import('./modules/estatua/viewer.js'),
-  ]);
-  const viewer = createViewer({ container: overlay, reducedMotion: true });
-  const list = document.querySelector('[data-fallback-projects]');
-  list.hidden = false;
-  projects.forEach((p) => {
-    const li = document.createElement('li');
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.innerHTML = `<strong></strong><span></span>`;
-    b.querySelector('strong').textContent = p.title;
-    b.querySelector('span').textContent = p.rubro || p.description;
-    b.addEventListener('click', () => viewer.show(p, { fromRect: b.getBoundingClientRect(), getReturnRect: () => b.getBoundingClientRect() }));
-    li.appendChild(b);
-    list.appendChild(li);
-  });
 }

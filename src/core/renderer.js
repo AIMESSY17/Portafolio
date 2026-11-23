@@ -21,6 +21,11 @@ export function createRenderer(container) {
   return renderer;
 }
 
+/** La película necesita WebGL2 (texturas 3D de las LUT, buffers HalfFloat). Sin él: versión liviana. */
+export function hasWebGL2() {
+  try { return !!document.createElement('canvas').getContext('webgl2'); } catch { return false; }
+}
+
 export function hasWebGL() {
   try {
     const c = document.createElement('canvas');

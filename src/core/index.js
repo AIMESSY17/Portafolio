@@ -92,7 +92,7 @@ export function createCore({ sections, stage, overlay }) {
     applyQuality(tier);
     modules.forEach((m) => m.setQuality?.(tier));
     bus.emit('quality:change', { tier });
-  }, { ceiling: quality, forced: isQualityForced(), gate: () => dynres.atMin() });
+  }, { ceiling: quality, forced: isQualityForced(), gate: () => dynres.atMin(), onFloor: (fps) => { console.info(`[calidad] piso: ${fps.toFixed(0)} fps en low → versión liviana`); bus.emit('calidad:piso', { fps }); } });
   // un módulo avisa que está precompilando: no se mide mientras tanto
   bus.on('precompile', ({ on }) => { monitor.hold(on); dynres.hold(on); });
   applyQuality(quality);
@@ -128,9 +128,8 @@ export function createCore({ sections, stage, overlay }) {
   });
 
   // pausa total con la pestaña oculta
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) loop.stop(); else { monitor.resetGrace(2); loop.start(); }
-  });
+  function onVisibility() { if (document.hidden) loop.stop(); else { monitor.resetGrace(2); loop.start(); } }
+  document.addEventListener('visibilitychange', onVisibility);
 
   return {
     THREE, scene, camera, cameraRig, renderer, bus, shared, loader, scroll, apis, overlay,
@@ -168,6 +167,13 @@ export function createCore({ sections, stage, overlay }) {
       htmlLayer.scene.remove(htmlLayer.scene.getObjectByName(`html_${name}`));
     },
     start() { scroll.refresh(); loop.start(); },
+    /** Apaga el 3D del todo (versión liviana): sin loop, sin canvas, sin scroll suave. */
+    detener() {
+      loop.stop();
+      document.removeEventListener('visibilitychange', onVisibility);
+      try { scroll.destroy(); } catch { /* nada */ }
+      renderer.domElement.style.display = 'none';
+    },
     resize,
     /**
      * Precalentado general, al terminar de montar todo y ANTES de mostrar la página:

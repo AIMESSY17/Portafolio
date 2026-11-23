@@ -42,11 +42,11 @@ export function detectQuality(gl) {
 //  · Con ?quality= forzado no hace nada.
 // Mide con performance.now() (no con el delta del loop, que está acotado y subestima los tirones).
 // gate(): el monitor solo baja de tier cuando la resolución dinámica ya llegó a su piso (resolucion.js).
-export function createQualityMonitor(getTier, onChange, { ceiling = 'high', forced = false, gate = () => true } = {}) {
+export function createQualityMonitor(getTier, onChange, { ceiling = 'high', forced = false, gate = () => true, onFloor = null } = {}) {
   const DOWN_AFTER = 3, UP_FPS = 57, SETTLE = 3, START_GRACE = 4;
   let acc = 0, frames = 0, last = performance.now();
   let grace = START_GRACE, holds = 0, bad = 0, good = 0;
-  let upWait = 10, failedUps = 0, upAt = -1e9;
+  let upWait = 10, failedUps = 0, upAt = -1e9, floorBad = 0, floorDone = false;
   const clear = () => { acc = 0; frames = 0; bad = 0; good = 0; last = performance.now(); };
 
   function change(next, fps, up) {
@@ -71,6 +71,10 @@ export function createQualityMonitor(getTier, onChange, { ceiling = 'high', forc
       acc = 0; frames = 0;
       const tier = getTier();
       const i = ORDER.indexOf(tier);
+      // piso: en low, debajo de 28 fps 5 s seguidos y con la resolución en su mínimo → versión liviana (una vez)
+      if (onFloor && !floorDone && tier === 'low') {
+        if (fps < 28 && gate()) { if (++floorBad >= 5) { floorDone = true; onFloor(fps); } } else floorBad = 0;
+      }
       if (fps < TIER_SETTINGS[tier].targetFps) {
         good = 0;
         if (++bad >= DOWN_AFTER && i > 0 && gate()) change(ORDER[i - 1], fps, false);
