@@ -18,6 +18,7 @@ import { createFotoAmbiente } from './foto-ambiente.js';
 import { createMar } from './luz-mar.js';
 import { createDestellos } from './luz-destellos.js';
 import { createPajaros } from './pajaros.js';
+import { createSalaParticulas } from './sala-particulas.js';
 import { createEstados, createEstado, copyEstado, mixEstado } from './luz-estados.js';
 import { createStats } from './stats.js';
 import { warmTextures } from './texturas.js';
@@ -72,6 +73,7 @@ export default async function createFondo(ctx) {
   const mar = createMar(ctx, { track, tier, sunDir });
   const destellos = createDestellos(ctx, { track, tier, sunDir });
   const pajaros = createPajaros(ctx, { track, tier });
+  const particulas = createSalaParticulas(ctx, { track, tier });
   const amb = createFotoAmbiente(ctx, { track, onProgress: (p) => { prog.hdr = p; report(); }, viaMatrix: cielo.uniforms.uViaM.value });
   const stats = createStats(ctx);
   // la estatua lee el sol y cuánto es de noche; el core lee la lente (destello, aberración)
@@ -116,9 +118,10 @@ export default async function createFondo(ctx) {
   setAnchor('atardecer', E.atardecer, 0, true);
 
   // ---------- eventos ----------
-  let salaId = null, dim = 0, nowT = 0;
+  let salaId = null, dim = 0, nowT = 0, salaProg = 0;
   const offs = [
-    bus.on('sala:change', ({ id }) => {
+    bus.on('sala:change', ({ id, progress }) => {
+      salaProg = progress || 0;
       if (id === salaId) return;
       salaId = id;
       copyEstado(salaFrom, salaLive);
@@ -133,12 +136,20 @@ export default async function createFondo(ctx) {
   ];
 
   let gustTimer = 6, gust = 0, wind = 0.3, dimLive = 0, veilScroll = 0, drift = 0;
+  // efectos de cada sala (0..1, se funden con la transición de sala; ZURKLIMA es un CORTE: sin fundido)
+  const fx = { ink: 0, palm: 0, calm: 0, hilo: 0, polen: 0, azucar: 0, bio: 0 };
+  let azucarT = 0, hiloProg = 0;
+  // bioluminiscencia con el dedo (en celular el core no escribe el puntero con el toque)
+  const touch = { x: 0, y: 0, on: 0 };
+  const onTouch = (e) => { if (e.pointerType !== 'touch') return; touch.x = (e.clientX / innerWidth) * 2 - 1; touch.y = -((e.clientY / innerHeight) * 2 - 1); touch.on = 1; };
+  addEventListener('pointermove', onTouch, { passive: true });
+  addEventListener('pointerdown', onTouch, { passive: true });
   let lastAlt = altura(0.5), fallSpeed = 0;
   const pointer = { x: 0, y: 0 };
 
   function setQuality(next) {
     tier = next;
-    mar.setQuality(tier); destellos.setQuality(tier); nubes.setQuality(tier);
+    mar.setQuality(tier); destellos.setQuality(tier); nubes.setQuality(tier); particulas.setQuality(tier);
   }
 
   // solo desarrollo: ?sala=<id> simula estar en esa sala (sirve con ?only=fondo, sin scrollear)
@@ -241,7 +252,40 @@ export default async function createFondo(ctx) {
       mu.uAmp.value = 1 - night * 0.55;
       const seaOn = seaK > 0.001;
       if (mar.mesh.visible !== seaOn) mar.mesh.visible = seaOn;
-      if (seaOn && !reduced && alt < 6) mar.pointerRipple(pointer.x, pointer.y, time);
+      if (seaOn && !reduced && alt < 6) {
+        if (touch.on > 0) { mar.pointerRipple(touch.x, touch.y, time); touch.on = Math.max(0, touch.on - dt * 2); }
+        else mar.pointerRipple(pointer.x, pointer.y, time);
+      }
+
+      // ---- efectos de sala ----
+      const kk = damp(3.2, dt);
+      const inSala = (id) => (salaId === id ? 1 : 0);
+      fx.ink += (inSala('tinta-negra') - fx.ink) * kk;
+      fx.palm += (inSala('aura-aika') - fx.palm) * kk;
+      fx.calm += (inSala('mantra-estetica') - fx.calm) * kk;
+      fx.hilo += (inSala('chufas') - fx.hilo) * kk;
+      fx.polen += (inSala('la-pastoril') - fx.polen) * kk;
+      fx.azucar += (inSala('casa-de-muffin') - fx.azucar) * kk;
+      fx.bio += (night - fx.bio) * kk;
+      mu.uInk.value = fx.ink;
+      mu.uInkR.value = 2 + (salaId === 'tinta-negra' ? salaProg : 0.5) * 70;   // la tinta se expande con la sala
+      mu.uPalm.value = fx.palm;
+      mu.uAmp.value *= 1 - fx.calm * 0.7;                                     // mantra: agua quieta, ondas lentas
+      mu.uDetail.value *= 1 - fx.calm * 0.55;
+      mu.uBio.value = fx.bio;
+      mu.uSSS.value = (tier === 'low' ? 0.5 : 1) * (1 - night);
+      hiloProg += ((salaId === 'chufas' ? salaProg : hiloProg) - hiloProg) * damp(4, dt);
+      cielo.uniforms.uHilo.value = Math.min(1, 0.08 + hiloProg * 1.05);
+      cielo.uniforms.uHiloK.value = fx.hilo;
+      const pu = particulas.uniforms;
+      pu.uTime.value = time; pu.uSeaY.value = seaY;
+      const polenOn = fx.polen > 0.01, azOn = fx.azucar > 0.01;
+      pu.uMode.value = azOn && fx.azucar >= fx.polen ? 1 : 0;
+      pu.uAmount.value = Math.max(fx.polen, fx.azucar) * (reduced ? 0.5 : 1);
+      const pOn = (polenOn || azOn) && !reduced;
+      if (particulas.points.visible !== pOn) particulas.points.visible = pOn;
+      // azúcar: al tocar el agua deja ondas chiquitas
+      if (azOn && !reduced) { azucarT -= dt; if (azucarT <= 0) { azucarT = 0.22 + Math.random() * 0.3; mar.drop((Math.random() - 0.5) * 7, (Math.random() - 0.5) * 6 - 1, 0.18, time); } }
 
       // ---- pájaros (bandadas a lo lejos, solo en la caída) ----
       pajaros.update(P, time, seaY, reduced ? 0 : (1 - night) * (tier === 'low' ? 0.8 : 1), live.horizonte);
@@ -266,15 +310,18 @@ export default async function createFondo(ctx) {
       L.rays = sunsetK * (1 - night) * (1 - veilK) * (0.42 + 0.58 * Math.min(1, fallSpeed / 35)) * (dimLive > 0.5 ? 0 : 1);
       // LUT de la escena (el post la funde en 1,3 s): cielo de día, atardecer, cada sala con la suya, hora azul
       L.lut = P < P_CRUCE ? 'cielo' : night >= 0.5 ? 'azul' : (salaId && SALA_LUT[salaId]) || 'atardecer';
+      // ZURKLIMA: corte de cámara a térmico (sin fundido: es un corte); al salir vuelve el color de golpe
+      L.thermal = salaId === 'zurklima' && !reduced ? 1 : 0;
 
       // ---- proyecto abierto: baja la luz ----
       dimLive += (dim - dimLive) * damp(4, dt);
       renderer.toneMappingExposure = live.exposure * (1 - dimLive * 0.28);
     },
-    resize(w, h) { nubes.resize(w, h); destellos.resize(); cielo.resize(); pajaros.resize(); },
+    resize(w, h) { nubes.resize(w, h); destellos.resize(); cielo.resize(); pajaros.resize(); particulas.resize(); },
     setQuality,
     dispose() {
       offs.forEach((off) => off?.());
+      removeEventListener('pointermove', onTouch); removeEventListener('pointerdown', onTouch);
       gsap.killTweensOf(salaK); gsap.killTweensOf(envMix); dReflection.kill();
       stats?.dispose();
       amb.dispose();

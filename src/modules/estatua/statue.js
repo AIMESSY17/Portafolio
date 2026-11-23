@@ -196,6 +196,8 @@ export function createStatue(ctx) {
     setChrome(v) { U.uChrome.value = v; },
     /** ALQUIMIA 0..1: el mármol se transmuta en oro pulido de abajo hacia arriba, con símbolos que se dibujan. */
     setAlquimia(v) { U.uAlq.value = v; },
+    /** Cáusticas en la base: 0..1 según lo cerca del agua que está. */
+    setCaustics(v) { U.uCaust.value = v; },
     /** El sol en espacio de vista (para la luz que atraviesa el mármol fino). */
     setSun(dirView, color) { U.uSunV.value.copy(dirView); if (color) U.uSunCol.value.copy(color); },
     /** Intro: k = 0..1 (negro con la silueta de oro) y draw = 0..1 (cuánto está dibujado). */

@@ -252,7 +252,9 @@ export function createOrbita(ctx, { projects, mode }) {
       u.uHover.value = it.hover;
       u.uDim.value = inRoom && !isRoom ? state.dimOthers : 1;
       u.uSheenI.value = 0.2 * (1 - e) + 0.04 * e; // al frente casi sin reflejo: el trabajo se ve claro
-      it.screen.material.blendAlpha = 1 - e;       // al frente: color real del sitio (máscara de alfa para el post)
+      // al frente: color real del sitio (máscara de alfa para el post). Nunca 0 exacto: three r170 pone su caché del
+      // color de mezcla en 0 al dibujar materiales normales sin avisarle a la GPU, y un 0 pedido no se mandaría
+      it.screen.material.blendAlpha = Math.max(0.0001, 1 - e);
     }
   }
 

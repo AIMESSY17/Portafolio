@@ -88,6 +88,20 @@ export function setupPelicula({ scroll, bus, reduced }) {
     }
   }
   bus.on('caida:inicio', ({ dir }) => { franjas(true); if (dir > 0) mostrarCapitulo(1); });
+
+  // ---------- visor REC (sala de ZURKLIMA: la toma corta a cámara térmica de vigilancia) ----------
+  const rec = document.createElement('div');
+  rec.className = 'rec';
+  rec.setAttribute('aria-hidden', 'true');
+  rec.innerHTML = '<i class="rec__c rec__c--a"></i><i class="rec__c rec__c--b"></i><i class="rec__c rec__c--c"></i><i class="rec__c rec__c--d"></i><span class="rec__txt"><b></b>REC</span>';
+  document.body.appendChild(rec);
+  let recOn = false;
+  bus.on('sala:change', ({ id }) => {
+    const on = id === 'zurklima' && !reduced;
+    if (on === recOn) return;
+    recOn = on;
+    html.classList.toggle('sala-rec', on);
+  });
   bus.on('caida:fin', () => franjas(false));
 
   // ---------- créditos ----------

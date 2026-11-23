@@ -53,6 +53,7 @@ uniform float uBelowK, uNight, uVia1, uViaRot;
 uniform vec3 uSunDir, uSunCol, uHazeCol;
 uniform float uSunK, uHazeK;
 uniform mat3 uViaM;
+uniform float uHilo, uHiloK;   // SALA CHUFAS: un hilo dorado que cose el cielo (avance 0..1 y visibilidad)
 varying vec3 vDir;
 ${HASH}
 const float PI2 = 6.28318530718;
@@ -109,6 +110,20 @@ void main(){
     col += uSunCol * (pow(sd, 8.0) * 0.04 + pow(sd, 60.0) * 0.16 + pow(sd, 600.0) * 1.6) * uSunK;
     float disc = smoothstep(0.99978, 0.99992, sd);
     col = mix(col, vec3(1.0, 0.94, 0.84) * 26.0, disc * uSunK); // luz real: el post lo hace florecer y le pone el destello
+  }
+  // hilo dorado: una costura de puntadas que cruza el cielo y avanza con la sala (con la aguja brillando al frente)
+  if (uHiloK > 0.001 && d.y > 0.0) {
+    float az = atan(d.x, -d.z);                     // 0 = hacia adelante
+    float el = asin(clamp(d.y, -1.0, 1.0));
+    float curve = 0.15 + 0.045 * sin(az * 2.6 + 0.8) + 0.02 * sin(az * 7.0);
+    float dl = abs(el - curve);
+    float w = fwidth(el) * 1.2 + 0.0008;
+    float line = 1.0 - smoothstep(w * 0.5, w * 1.6, dl);
+    float head = mix(-1.1, 1.1, uHilo);
+    float drawn = step(az, head) * step(-1.1, az);
+    float stitch = step(0.38, fract(az * 26.0));    // puntadas
+    float needle = exp(-pow((az - head) * 40.0, 2.0)) * (1.0 - smoothstep(w, w * 6.0, dl));
+    col += vec3(1.0, 0.8, 0.42) * (line * drawn * stitch * 2.2 + needle * 6.0) * uHiloK;
   }
   // abajo del horizonte en el hero: el mar de nubes (claro), que sigue hasta el horizonte
   col = mix(col, uBelow, uBelowK * smoothstep(0.0, -0.16, d.y));
@@ -197,6 +212,7 @@ export function createFotoCielo(ctx, { track, tier, onProgress, sunDir }) {
     uViaM: { value: viaM },
     uSunDir: { value: sunDir || new THREE.Vector3(0, 0.1, -1) }, uSunCol: { value: new THREE.Color('#ffc98a') },
     uHazeCol: { value: new THREE.Color('#f7c896') }, uSunK: { value: 0 }, uHazeK: { value: 0 },
+    uHilo: { value: 0 }, uHiloK: { value: 0 },
   };
   const material = track(new THREE.ShaderMaterial({
     uniforms, vertexShader: VERTEX, fragmentShader: FRAGMENT,

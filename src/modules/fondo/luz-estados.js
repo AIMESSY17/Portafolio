@@ -60,12 +60,20 @@ const NOCHE = {
 
 // salas: solo lo que cambia respecto del atardecer (tintes leves: la foto manda)
 const SALAS = {
-  'tinta-negra': { skyTint: '#F2EEF2', seaDeep: '#07060B', seaShallow: '#1A1720', haze: '#A8949C', goldMix: 0.5 },
-  'aura-aika': { skyTint: '#FFF6E8', seaDeep: '#0B2A2E', seaShallow: '#2C6A6A', haze: '#C9B39A', goldMix: 0.85 },
+  // tinta: agua negra como tinta y una luz rojo ceniza, rasante
+  'tinta-negra': { skyTint: '#E6D6D4', sun: '#E46A52', seaDeep: '#040306', seaShallow: '#17101A', haze: '#9A7C7E', horizonte: '#C9806A', glintGold: '#FFB59A', goldMix: 0.45 },
+  // mantra: agua lavanda quieta, bruma baja
+  'mantra-estetica': { skyTint: '#F0E8F8', sun: '#F4D8EC', seaDeep: '#3A3152', seaShallow: '#8D7FB4', haze: '#CFC1E3', horizonte: '#DCCCEC', glintGold: '#F6EAFF', glintSilver: '#FFFFFF', goldMix: 0.25, hazeK: 0.5 },
+  // aura aika: hora dorada fuerte y mar turquesa
+  'aura-aika': { skyTint: '#FFEFD2', sun: '#FFB257', seaDeep: '#04323A', seaShallow: '#1D8F88', haze: '#EBB884', horizonte: '#F4B477', goldMix: 0.95 },
+  // zurklima: la toma pasa a térmico en blanco y negro (lo hace el post); el mundo, neutro
   zurklima: { skyTint: '#EEF0F6', sun: '#F3F5FA', seaDeep: '#1A1F28', seaShallow: '#4A5361', haze: '#AEB4C2', glintGold: '#F1F3F8', goldMix: 0.12 },
-  'la-pastoril': { skyTint: '#FFF7E6', sun: '#FFD99A', seaDeep: '#2A2620', seaShallow: '#6E6046', haze: '#D2BE9C', goldMix: 0.9 },
-  chufas: { skyTint: '#FFF0F0', seaDeep: '#271E2E', seaShallow: '#6E5160', haze: '#CFA9AE' },
-  'casa-de-muffin': { skyTint: '#FFF2EA', sun: '#FFCA9B', seaDeep: '#2C2024', seaShallow: '#7A5A56', haze: '#D6AE9C' },
+  // la pastoril: mañana de campo, agua dorada, bruma suave (y polen)
+  'la-pastoril': { skyTint: '#FFF6DF', sun: '#FFDE9C', seaDeep: '#3A2D16', seaShallow: '#9D7E3C', haze: '#E7D3A6', horizonte: '#F2DCA6', goldMix: 0.95, hazeK: 0.45 },
+  // chufas: agua rosa pastel (y un hilo dorado que cose el cielo)
+  chufas: { skyTint: '#FFEEF2', sun: '#FFD3DA', seaDeep: '#4A2D3E', seaShallow: '#C890A7', haze: '#EAC4D0', horizonte: '#F3CED8', goldMix: 0.5 },
+  // casa de muffin: agua ámbar-rosa (y azúcar impalpable que cae)
+  'casa-de-muffin': { skyTint: '#FFF0E4', sun: '#FFC08C', seaDeep: '#4A2921', seaShallow: '#BA7A61', haze: '#E7B99F', horizonte: '#F0C19B', goldMix: 0.8 },
 };
 
 /** Estado vacío (todos los colores ya creados). */

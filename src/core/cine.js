@@ -23,7 +23,7 @@ precision highp sampler3D;
 uniform sampler2D tBloom, tRays, tDirt, tBokeh;
 uniform sampler3D tLutA, tLutB;
 uniform float uBloom, uHalation, uRays, uFlare, uDirt, uExpo, uLutMix, uLutK, uThermal, uVignette, uGrain, uKeep, uNegro;
-uniform float uDof, uFocus, uRange;
+uniform float uDof, uFocus, uRange, uDebugKeep;
 uniform vec2 uSun;
 uniform vec3 uSunCol;
 uniform float uAspect, uT;
@@ -43,6 +43,7 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, const in float depth,
   vec3 hdr = max(inputColor.rgb, 0.0);
   float keep = clamp(1.0 - inputColor.a, 0.0, 1.0) * uKeep;
   vec3 orig = hdr;
+  if (uDebugKeep > 0.5) { outputColor = vec4(vec3(keep), 1.0); return; }
   if (uDof > 0.0001) {
     float dist = -getViewZ(depth);
     float coc = clamp((abs(dist - uFocus) - uRange * 0.35) / uRange, 0.0, 1.0) * uDof;
@@ -156,7 +157,7 @@ export class CineEffect extends Effect {
       attributes: EffectAttribute.DEPTH,
       uniforms: new Map([
         ['tBloom', new THREE.Uniform(blank2)], ['tRays', new THREE.Uniform(blank2)], ['tDirt', new THREE.Uniform(blank2)],
-        ['tBokeh', new THREE.Uniform(blank2)], ['uDof', new THREE.Uniform(0)], ['uFocus', new THREE.Uniform(8)], ['uRange', new THREE.Uniform(3)],
+        ['tBokeh', new THREE.Uniform(blank2)], ['uDof', new THREE.Uniform(0)], ['uDebugKeep', new THREE.Uniform(0)], ['uFocus', new THREE.Uniform(8)], ['uRange', new THREE.Uniform(3)],
         ['tLutA', new THREE.Uniform(blank3)], ['tLutB', new THREE.Uniform(blank3)],
         ['uBloom', new THREE.Uniform(0)], ['uHalation', new THREE.Uniform(0)], ['uRays', new THREE.Uniform(0)],
         ['uFlare', new THREE.Uniform(0)], ['uDirt', new THREE.Uniform(0)], ['uExpo', new THREE.Uniform(1)],

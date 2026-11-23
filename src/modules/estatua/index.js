@@ -416,6 +416,7 @@ export default async function createEstatua(ctx) {
       }
       // reflejo en el agua: cuando la estatua está cerca del mar
       statue.setReflection((1 - Math.min(1, alt / 7)) * ramp(P, TRAMOS.mar), seaY, time);
+      statue.setCaustics((1 - Math.min(1, alt / 3)) * ramp(P, TRAMOS.mar) * (1 - night * 0.6) * (ctx.quality === 'low' ? 0.6 : 1));
 
       // ---- cámara: hero → mar → sala → orilla (+ la caída: se abre el campo y tiembla con la velocidad) ----
       C.set(0, baseY + ESCENA.center, 0);

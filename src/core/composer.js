@@ -8,7 +8,7 @@ import { CineEffect } from './cine.js';
 const OFF = new Set((new URLSearchParams(location.search).get('post') || '').split(','));
 
 // POST-PROCESADO DE CINE (pmndrs/postprocessing), en UN solo pase de efectos:
-//   escena (HalfFloat, luz real) → [ SMAA (FXAA en low) · profundidad de campo con bokeh (solo high) · CINE ]
+//   escena (HalfFloat, luz real) → [ SMAA (preset LOW en low) · CINE (con profundidad de campo en high) ]
 //   CINE (cine.js) = bloom + halación + rayos + destello anamórfico + suciedad de lente + ACES + LUT por escena +
 //   modo térmico + viñeta + grano. El tono ya NO lo aplica el renderer: lo hace este pase (el renderer dibuja a un
 //   target y three no aplica tono en targets). renderer.toneMappingExposure sigue siendo la exposición que pone
@@ -17,7 +17,7 @@ const OFF = new Set((new URLSearchParams(location.search).get('post') || '').spl
 //   flare, rays, lut ('cielo' | 'atardecer' | 'azul' | sala...), thermal  → ESCRIBE fondo
 //   dof (0..1), focus (m), focusRange (m)                                 → ESCRIBE estatua
 //   negro (0..1, fundido a negro)                                         → ESCRIBE ui (apertura)
-// Cada calidad: high = todo · medium = sin DOF, bloom más chico, rayos con menos muestras · low = FXAA, sin bloom
+// Cada calidad: high = todo · medium = sin DOF, bloom más chico, rayos con menos muestras · low = SMAA LOW, sin bloom
 // ni rayos ni suciedad, solo tono + LUT + viñeta + grano (una sola lectura de textura extra: la LUT).
 export const POST = {
   high: { bloom: 0.32, halation: 0.09, dirt: 0.32, rays: 1, raysN: 28, grain: 0.032, vignette: 0.5, lutK: 0.62, dof: true },
@@ -34,8 +34,9 @@ export function createComposer(renderer, scene, camera, shared, { tier: tier0 = 
   composer.addPass(renderPass);
 
   const cine = new CineEffect();
-  const useFxaa = tier === 'low' || OFF.has('nosmaa');
-  const aa = OFF.has('noaa') ? null : useFxaa ? new FXAAEffect() : new SMAAEffect({ preset: SMAAPreset.MEDIUM });
+  // antialias: SMAA (MEDIUM; LOW en calidad baja). El FXAA de pmndrs lee la luminancia del canal alfa y rompe la
+  // máscara de "color real" de las ventanas, así que queda solo para pruebas (?post=fxaa)
+  const aa = OFF.has('noaa') ? null : OFF.has('fxaa') ? new FXAAEffect() : new SMAAEffect({ preset: tier === 'low' ? SMAAPreset.LOW : SMAAPreset.MEDIUM });
   const pass = new EffectPass(camera, ...(aa ? [aa, cine] : [cine]));
   composer.addPass(pass);
 
@@ -145,6 +146,7 @@ export function createComposer(renderer, scene, camera, shared, { tier: tier0 = 
     U.get('uGrain').value = OFF.has('nograin') ? 0 : P.grain;
     U.get('uNegro').value = L.negro || 0;
     U.get('uKeep').value = L.keep ?? 1;
+    U.get('uDebugKeep').value = OFF.has('vermascara') ? 1 : 0;
     // profundidad de campo (solo high): foco en metros (la estatua o la ventana de la sala)
     const dofK = P.dof && !OFF.has('nodof') ? (L.dof || 0) : 0;
     U.get('uDof').value = dofK > 0.01 ? dofK : 0;

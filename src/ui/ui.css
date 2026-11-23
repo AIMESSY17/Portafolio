@@ -212,6 +212,11 @@ html.fuera-hero .hero { opacity: 0; transform: translateY(-8px); }
   pointer-events: none;
 }
 .sala:not(.is-on) .sala__link { pointer-events: none; }
+/* legible sobre cualquier fondo (lavanda, rosa, ámbar): un velo oscuro muy suave detrás, sin bordes ni caja */
+.sala::before {
+  content: ''; position: absolute; inset: -34px -48px -44px -56px; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse 62% 70% at 42% 50%, rgba(12, 9, 16, 0.5), rgba(12, 9, 16, 0.26) 55%, rgba(12, 9, 16, 0) 78%);
+}
 .sala > * > * { margin: 0; }
 .sala__num { font: 400 11px/1 var(--font-cine); letter-spacing: 0.32em; text-transform: uppercase; color: rgba(241, 210, 122, 0.85); }
 .sala__unica {
@@ -226,7 +231,7 @@ html.fuera-hero .hero { opacity: 0; transform: translateY(-8px); }
 .sala__b { margin: 0; padding-top: 26px; display: grid; gap: 10px; }
 .sala__fila { display: grid; grid-template-columns: 88px 1fr; gap: 10px; align-items: baseline; }
 .sala__fila[hidden] { display: none; }
-.sala__fila dt { font: 400 10px/1.4 var(--font-cine); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(241, 210, 122, 0.8); }
+.sala__fila dt { font: 400 10px/1.4 var(--font-cine); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(241, 210, 122, 0.95); }
 .sala__fila dd { margin: 0; font: 300 14px/1.5 var(--font-datos); color: rgba(243, 238, 230, 0.86); }
 .sala__link {
   position: relative;

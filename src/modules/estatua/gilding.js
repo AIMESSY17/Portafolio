@@ -121,6 +121,7 @@ export function gildingUniforms(THREE, g) {
     uBump: { value: 0.014 },                             // relieve de las vetas (derivadas en pantalla: valores chicos)
     uHuellaScale: { value: 1.6 },
     uToStatueN: { value: new THREE.Matrix3() },          // normal de la malla → espacio estatua (para el triplanar)
+    uCaust: { value: 0 },                                // cáusticas: la luz del agua sobre la base (0 lejos del mar)
   };
 }
 
@@ -160,7 +161,19 @@ vCurv = aCurv;
 export const GILDING_FRAGMENT_PARS = /* glsl */ `
 varying vec3 vNS;
 uniform sampler2D uMarble, uHuellas;
-uniform float uMarbleK, uMarbleScale, uBump, uHuellaScale;
+uniform float uMarbleK, uMarbleScale, uBump, uHuellaScale, uCaust;
+// cáusticas: la red de luz que el agua proyecta (dos capas de "ondas" que se cruzan; sin texturas)
+float caustica(vec2 p, float t){
+  vec2 q = p;
+  float c = 0.0;
+  for (int i = 0; i < 2; i++) {
+    float fi = float(i);
+    q = p * (1.0 + fi * 0.7) + vec2(t * (0.3 + fi * 0.2), -t * (0.25 + fi * 0.15));
+    float v = sin(q.x + sin(q.y * 1.3 + t)) * sin(q.y + sin(q.x * 1.1 - t * 0.7));
+    c += pow(1.0 - abs(v), 6.0);
+  }
+  return c * 0.5;
+}
 float gMarbleH = 0.5;    // vetas del mármol (para el relieve)
 float gMarbleR = 0.5;    // rugosidad del mármol
 float gHuella = 0.0;     // huellas en el oro
@@ -394,6 +407,12 @@ totalEmissiveRadiance += uPaintGlow * (gAlqLine * 1.25 + gAlqEdge * 1.9);   // s
   float rimT = pow(1.0 - clamp(dot(normalize(normal), Vt), 0.0, 1.0), 2.0);
   vec3 sss = uSunCol * vec3(1.0, 0.74, 0.55) * clamp(thin, 0.0, 1.0) * (0.12 + 0.88 * through) * (0.3 + 0.7 * rimT) * uTrans;
   totalEmissiveRadiance += sss * (1.0 - max(gGold, gChrome)) * 0.55;
+}
+if (uCaust > 0.001) {
+  // la luz que rebota en el agua sube por la base (más fuerte abajo, se apaga hacia la cintura)
+  float hk = 1.0 - smoothstep(0.1, 1.3, vS.y);
+  float c = caustica(vS.xz * 7.0 + vec2(vS.y * 2.0, 0.0), uTime * 1.3);
+  totalEmissiveRadiance += uSunCol * c * hk * uCaust * mix(0.35, 0.8, gGold);
 }
 `;
 

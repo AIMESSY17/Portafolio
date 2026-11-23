@@ -104,3 +104,16 @@ html.con-apertura .menu, html.con-apertura .wa, html.con-apertura .sonido, html.
   .capitulo.is-on { animation: capitulo-r 1.5s linear forwards; }
   @keyframes capitulo-r { 0%, 100% { opacity: 0; } 20%, 80% { opacity: 1; } }
 }
+
+/* ---------- visor REC (ZURKLIMA): corte duro, sin fundido ---------- */
+.rec { position: fixed; inset: clamp(14px, 3vw, 40px); z-index: 2; pointer-events: none; display: none; }
+html.sala-rec .rec { display: block; }
+.rec__c { position: absolute; width: 28px; height: 28px; border: 0 solid rgba(255, 255, 255, 0.75); }
+.rec__c--a { left: 0; top: 0; border-left-width: 1.5px; border-top-width: 1.5px; }
+.rec__c--b { right: 0; top: 0; border-right-width: 1.5px; border-top-width: 1.5px; }
+.rec__c--c { left: 0; bottom: 0; border-left-width: 1.5px; border-bottom-width: 1.5px; }
+.rec__c--d { right: 0; bottom: 0; border-right-width: 1.5px; border-bottom-width: 1.5px; }
+.rec__txt { position: absolute; left: 40px; top: 6px; display: flex; align-items: center; gap: 8px; font: 400 12px/1 var(--font-datos); letter-spacing: 0.24em; color: rgba(255, 255, 255, 0.85); }
+.rec__txt b { width: 9px; height: 9px; border-radius: 50%; background: #ff3b30; box-shadow: 0 0 8px rgba(255, 59, 48, 0.8); animation: rec 1.2s steps(2, jump-none) infinite; }
+@keyframes rec { 50% { opacity: 0.15; } }
+@media (max-width: 699px) { .rec__txt { top: 64px; left: 4px; } }
