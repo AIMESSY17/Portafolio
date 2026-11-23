@@ -20,7 +20,7 @@ const OFF = new Set((new URLSearchParams(location.search).get('post') || '').spl
 // Cada calidad: high = todo · medium = sin DOF, bloom más chico, rayos con menos muestras · low = SMAA LOW, sin bloom
 // ni rayos ni suciedad, solo tono + LUT + viñeta + grano (una sola lectura de textura extra: la LUT).
 export const POST = {
-  high: { bloom: 0.32, halation: 0.09, dirt: 0.32, rays: 1, raysN: 28, grain: 0.032, vignette: 0.5, lutK: 0.62, dof: true },
+  high: { bloom: 0.32, halation: 0.09, dirt: 0.32, rays: 1, raysN: 20, grain: 0.032, vignette: 0.5, lutK: 0.62, dof: true },
   medium: { bloom: 0.26, halation: 0.07, dirt: 0.24, rays: 1, raysN: 16, grain: 0.03, vignette: 0.46, lutK: 0.62, dof: false },
   low: { bloom: 0, halation: 0, dirt: 0, rays: 0, raysN: 8, grain: 0.012, vignette: 0.42, lutK: 0.58, dof: false },
 };

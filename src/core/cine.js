@@ -225,11 +225,22 @@ export class CineEffect extends Effect {
   update(renderer, inputBuffer, deltaTime) {
     const u = this.uniforms;
     u.get('uT').value += deltaTime;
-    if (this.bloomOn && (u.get('uBloom').value > 0.0001 || this.forceAll)) {
+    // amortización temporal: si están los dos, el bloom se recalcula en los cuadros pares y los rayos en los impares
+    // (son desenfoques suaves: un cuadro de diferencia no se ve, y el costo por cuadro es el mayor, no la suma)
+    this.frame = (this.frame || 0) + 1;
+    const wantBloom = this.bloomOn && u.get('uBloom').value > 0.0001;
+    const wantRays = u.get('uRays').value > 0.0001;
+    const both = wantBloom && wantRays && !this.forceAll;
+    const doBloom = this.forceAll || (wantBloom && (!both || (this.frame & 1) === 0 || !this.bloomReady));
+    const doRays = this.forceAll || (wantRays && (!both || (this.frame & 1) === 1 || !this.raysReady));
+    if (doBloom) {
       this.bloom.update(renderer, inputBuffer, deltaTime);
       u.get('tBloom').value = this.bloom.texture;
+      this.bloomReady = true;
     }
-    if (u.get('uRays').value > 0.0001 || this.forceAll) {
+    if (!wantBloom) this.bloomReady = false;
+    if (!wantRays) this.raysReady = false;
+    if (doRays) {
       const prev = renderer.getRenderTarget();
       this.rayMat.uniforms.tFrame.value = inputBuffer.texture;
       this.rayMat.uniforms.uSun.value.copy(u.get('uSun').value);
@@ -238,6 +249,7 @@ export class CineEffect extends Effect {
       this.rayQuad.render(renderer);
       renderer.setRenderTarget(prev);
       u.get('tRays').value = this.rayRT.texture;
+      this.raysReady = true;
     }
     if (u.get('uDof').value > 0.0001 || this.forceAll) {
       const prev = renderer.getRenderTarget();

@@ -257,7 +257,7 @@ export function createAlquimia(ctx, { statue }) {
       group.position.y = baseY;
       group.visible = vis > 0.003;
       if (!group.visible) return;
-      const a = (ANILLOS.alpha.hero + (ANILLOS.alpha.alq - ANILLOS.alpha.hero) * alq) * vis * (1 - 0.35 * room);
+      const a = (ANILLOS.alpha.hero + (ANILLOS.alpha.alq - ANILLOS.alpha.hero) * alq) * vis * (1 - 0.62 * room); // en la sala manda la obra
       for (const r of rings) {
         r.band.rotation.y += dt * r.cfg.spin * motion;
         r.prec.rotation.y += dt * r.cfg.prec * motion;
@@ -271,7 +271,7 @@ export function createAlquimia(ctx, { statue }) {
         nike.mat.emissiveIntensity = 0.03 + nikeK * 2.1;
       }
       U.uTime.value = time;
-      U.uAmount.value = (0.35 + 0.65 * alq) * vis * (1 - 0.3 * room);
+      U.uAmount.value = (0.35 + 0.65 * alq) * vis * (1 - 0.5 * room);
       // hilo: distancia de la cámara al centro de la corona
       threadU.uOpacity.value = CORONA.thread.opacity * vis * (0.5 + 0.5 * alq) * (1 - 0.4 * room);
       thread.updateWorldMatrix(true, false);

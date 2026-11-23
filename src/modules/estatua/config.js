@@ -129,10 +129,10 @@ export const ANILLOS = {
     { r: 1.18, tilt: 0.66, spin: 0.26, prec: -0.12, tex: 'simbolos' },
     { r: 1.42, tilt: 1.14, spin: -0.16, prec: 0.09, tex: 'alfabeto' },
     { r: 1.66, tilt: 1.33, spin: 0.2, prec: 0.06, tex: 'nike' },       // lleva "ΝΙΚΗ" y brilla cerca del mouse
-    { r: 1.90, tilt: 0.28, spin: -0.1, prec: -0.07, tex: 'escala' },
+    // { r: 1.90, tilt: 0.28, spin: -0.1, prec: -0.07, tex: 'escala' },  // menos es más: con 3 alcanza
   ],
   mobile: 0.62,                  // factor de tamaño en celular
-  alpha: { hero: 0.34, alq: 0.9 }, // opacidad: tenue arriba de las nubes, plena con la transmutación
+  alpha: { hero: 0.26, alq: 0.85 }, // opacidad: tenue arriba de las nubes, plena con la transmutación
   dust: { high: 240, medium: 130, low: 50, falling: 0.4 },
   nikeGlowDist: 110,             // px: a qué distancia del anillo del mouse empieza a brillar "ΝΙΚΗ"
 };
@@ -143,7 +143,7 @@ export const CORONA = {
   tilt: 0.35,                    // rad (~20°): el frente baja y el fondo sube; desde abajo se lee como una corona
   desktop: { r: 1.38, y: 3.5, width: 0.6 },    // 7 ventanas de 0,6 m en un aro de 1,38 m: medio metro libre entre cada una
   mobile: { r: 1.02, y: 3.4, width: 0.6 },     // pantalla angosta: aro más cerrado, ventanas relativamente más grandes
-  back: { scale: 0.62, opacity: 0.5 },
+  back: { scale: 0.62, opacity: 0.4 },
   front: { scale: 1.08 },
   hoverScale: 1.38,              // la ventana sobre la que está el mouse crece
   thread: { color: '#F1D27A', opacity: 0.7 },

@@ -207,7 +207,7 @@ export function createOrbita(ctx, { projects, mode }) {
     for (const it of items) {
       const e = easeInOut3(it.k.v);
       const isRoom = it.project.id === state.roomId;
-      const op = Math.max(visible * (inRoom && !isRoom ? 0.42 : 1), e);
+      const op = Math.max(visible * (inRoom && !isRoom ? 0.22 : 1), e); // menos es más: en la sala, las otras casi se van
       const on = op > 0.003;
       if (it.win.visible !== on) it.win.visible = on;
       if (!on) continue;

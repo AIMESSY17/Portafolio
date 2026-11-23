@@ -10,7 +10,7 @@ import path from 'node:path';
 const [, , base = 'http://localhost:5173', outDir = 'referencias/resultado/caida', dev = 'escritorio', tier = 'high'] = process.argv;
 fs.mkdirSync(outDir, { recursive: true });
 const D = {
-  escritorio: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 },
+  escritorio: { viewport: { width: Number(process.env.W || 1920), height: Number(process.env.H || 1080) }, deviceScaleFactor: 1 },
   celular: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true },
 }[dev];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -20,7 +20,7 @@ const page = await ctx.newPage();
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text().slice(0, 300)); });
-await page.goto(`${base}/?stats&nointro&quality=${tier}`, { waitUntil: 'domcontentloaded' });
+await page.goto(`${base}/?stats&nointro&quality=${tier}${process.env.EXTRA ? "&" + process.env.EXTRA : ""}`, { waitUntil: "domcontentloaded" });
 await page.waitForFunction(() => document.documentElement.classList.contains('is-ready') && window.__fondoStats, null, { timeout: 120000 });
 await sleep(2500);
 const read = () => page.evaluate(() => ({ y: Math.round(window.core.scroll.lenis.animatedScroll), P: +((window.core.scroll.lenis.animatedScroll + innerHeight / 2) / innerHeight).toFixed(3), on: window.core.shared.caida.on, dir: window.core.shared.caida.dir, q: +window.core.shared.caida.q.toFixed(3), cam: +window.core.camera.position.y.toFixed(1) }));
