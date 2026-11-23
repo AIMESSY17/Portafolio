@@ -12,7 +12,7 @@ import path from 'node:path';
 const [, , base = 'http://localhost:5199', outDir = 'referencias/resultado', ...scenes] = process.argv;
 fs.mkdirSync(outDir, { recursive: true });
 const DEVICES = {
-  escritorio: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, isMobile: false, hasTouch: false },
+  escritorio: { viewport: { width: Number(process.env.W || 1920), height: Number(process.env.H || 1080) }, deviceScaleFactor: 1, isMobile: false, hasTouch: false },
   celular: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true },
 };
 const only = process.env.QA_DEVICES ? process.env.QA_DEVICES.split(',') : Object.keys(DEVICES);

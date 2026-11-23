@@ -17,7 +17,7 @@ export const STATUE = {
   orientationFix: { x: -Math.PI / 2, y: 0, z: 0 }, // endereza el escaneo (viene acostado)
   rotationY: 0.9,                 // vista de tres cuartos (la clásica del Louvre)
   scale: 1,                       // multiplicador extra sobre `height`
-  smoothNormals: 3,               // pasadas de suavizado de normales del escaneo (worker, gilding-bake.js)
+  smoothNormals: 3,               // pasadas de suavizado de normales del escaneo (worker, gilding-bake.js). Con 6 el worker tarda más que la espera de carga y el modelo llegaba en medio del scroll
   float: { amplitude: 0.04, period: 6 }, // sube y baja ±4 cm cada 6 s
   sway: { amount: 0.03, speed: 0.09 },   // rotación casi imperceptible
   pointerReaction: { yaw: 0.06, pitch: 0.02 }, // cuánto "mira" hacia el cursor

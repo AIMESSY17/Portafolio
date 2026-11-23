@@ -1,36 +1,64 @@
-CRÉDITOS DE RECURSOS DE TERCEROS — Portafolio "Samotracia"
-=============================================================
+CRÉDITOS DE RECURSOS DE TERCEROS — Portafolio "Samotracia" (versión película)
+=============================================================================
+Los originales viven fuera del proyecto (ASSET/Public). Acá solo hay versiones optimizadas, generadas con
+los scripts de scripts/assets/ (cada uno dice de qué archivo sale y cómo).
 
-MODELO 3D
-- "Nike of Samothrace" de p_moraiti (Sketchfab), licencia CC BY 4.0.
+MODELO 3D (en uso)
+- "Nike of Samothrace" de p_moraiti (Sketchfab), licencia CC BY 4.0. CRÉDITO OBLIGATORIO, visible en los
+  créditos finales de la página.
   https://sketchfab.com/3d-models/nike-of-samothrace-0ba90c17bcc342b5bf6f08ea766662dd
-  (El crédito está visible en el pie de la sección Contacto.)
+  Archivos: estatua/victoria.glb, estatua/victoria-lod0.glb, estatua/partes-oro.glb
 
-CIELOS (panoramas y HDR) — Poly Haven, licencia CC0 (dominio público). https://polyhaven.com/hdris
-- Día (hero):        "Kloofendal 48d Partly Cloudy (Pure Sky)" — Greg Zaal, Jarod Guest
-                      https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky
-- Atardecer (mar):    "Belfast Sunset (Pure Sky)" — Greg Zaal, Dimitrios Savva, Jarod Guest
-                      https://polyhaven.com/a/belfast_sunset_puresky
-- Hora azul (Contacto): "Qwantani Dusk 2 (Pure Sky)" — Greg Zaal, Jarod Guest
-                      https://polyhaven.com/a/qwantani_dusk_2_puresky
-  Archivos: public/assets/fondo/cielo/dia|atardecer|crepusculo(.webp, -2k.webp, .hdr)
-  · .webp 4K y 2K: el "Tonemapped JPG" de Poly Haven reducido (el del crepúsculo, que venía cortado desde
-    el servidor, se generó desde su HDR de 4K con la curva ACES).
-  · .hdr: el HDR de 1K original, para la luz y los reflejos.
-- Nubes (nubes.webp, nubes-1k.webp): recortes de cúmulos de la foto "Kloofendal 48d Partly Cloudy" con
-  transparencia calculada (CC0, misma fuente).
+MODELO 3D ALTERNATIVO (preparado, APAGADO hasta confirmar la licencia)
+- "Winged Victory of Samothrace at The Louvre, Paris" — Scan The World (MyMiniFactory), objeto 2073.
+  https://www.myminifactory.com/object/3d-print-2073
+  LICENCIA SIN VERIFICAR: la página no se pudo consultar. Antes de prenderlo (ESTATUA_MODELO en
+  src/modules/estatua/config.js), revisar en esa página que permita uso comercial y qué crédito pide.
+  Archivos: estatua/victoria-stw.glb (300 mil triángulos), estatua/victoria-stw-lod0.glb (45 mil)
+- "2013-winged-victory.stl" (escaneo de Cosmo Wenman del calco de Basilea): NO se usa. Licencia sin
+  verificar (las fuentes se contradicen) y es la reconstrucción con brazos, no la estatua del Louvre.
 
-VÍA LÁCTEA Y ESTRELLAS — ESO/S. Brunier, licencia CC BY 4.0.
-- "The Milky Way panorama" (eso0932a). https://www.eso.org/public/images/eso0932a/
-  Archivos: public/assets/fondo/cielo/estrellas(.webp, -2k.webp) = el brillo de la banda (sin los puntos de
-  las estrellas); estrellas.bin = posición, brillo y color de las 2400 estrellas más brillantes de la foto.
-  (El crédito está visible en el pie de la sección Contacto.)
+CIELOS — Poly Haven, licencia CC0 (dominio público). https://polyhaven.com/hdris
+- Día (I — El cielo):        "Kloofendal 48d Partly Cloudy (Pure Sky)" — Greg Zaal, Jarod Guest
+                              https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky
+- Atardecer (la caída, salas): "Belfast Sunset (Pure Sky)" — Greg Zaal, Dimitrios Savva, Jarod Guest
+                              https://polyhaven.com/a/belfast_sunset_puresky
+- Hora azul (créditos):       "Kloppenheim 06 (Pure Sky)" — Greg Zaal
+                              https://polyhaven.com/a/kloppenheim_06_puresky
+  Archivos: fondo/cielo/<dia|atardecer|crepusculo>(.webp 4K, -2k.webp, -1k.webp), generados desde los EXR de 4K
+  (scripts/assets/cielos.py). Van codificados (Reinhard en sRGB, con tramado) para conservar el brillo del sol.
+  fondo/cielo/crepusculo.hdr = HDR de 1K de Kloppenheim 06 (luz y reflejos). dia.hdr y atardecer.hdr = los
+  HDR de 1K de Poly Haven de los mismos cielos.
+- Nubes (fondo/cielo/nubes.webp, nubes-1k.webp): recortes de cúmulos de "Kloofendal 48d Partly Cloudy" (CC0).
+
+VÍA LÁCTEA Y ESTRELLAS — "Milky Way at the Residencia", Y. Beletsky (LCO)/ESO, licencia CC BY 4.0.
+  https://www.eso.org/public/images/uhd_9180_panorama_eq/
+  CRÉDITO OBLIGATORIO, visible en los créditos finales de la página.
+  Archivos: fondo/cielo/estrellas(.webp, -2k.webp) = el brillo de la banda (sin estrellas, sin suelo ni luz
+  zodiacal); fondo/cielo/estrellas.bin = posición, brillo y color de las 2600 estrellas más brillantes de la foto
+  (scripts/assets/estrellas.py).
+
+MATERIALES
+- Mármol: "Marble012" — ambientCG (Lennart Demes), licencia CC0. https://ambientcg.com/view?id=Marble012
+  Archivos: estatua/marmol-2k.webp, marmol-1k.webp (detalle de vetas, rugosidad y relieve empaquetados).
+- Huellas en el oro: "Imperfection 0002" — ShareTextures, licencia CC0 personalizada (uso comercial libre, sin
+  atribución obligatoria; no se puede redistribuir el archivo como asset suelto). https://www.sharetextures.com/p/license
+  Archivo: estatua/oro-huellas-1k.webp
+
+LENTE Y COLOR
+- Suciedad de la lente: "Dirt 1" — ShareTextures, licencia CC0 personalizada (ídem).
+  https://www.sharetextures.com/textures/surfaceimperfection/dirt-1-1  Archivo: lente/suciedad.webp
+- LUTs: "10 Free Cinematic LUTs Pack" — FreeVisuals, libres para uso personal y comercial.
+  https://www.freevisuals.net/luts/free-10-cinematic-luts-pack
+  Archivos: lente/lut-*.png (8 de los 10, convertidos a tiras PNG de 32³; scripts/assets/luts.py).
 
 SONIDO
-- No usa archivos: el viento y el agua se generan en el navegador con Web Audio (ruido filtrado).
-  0 KB, sin licencias de terceros.
+- Olas: "alkaibeach" de jasinski (Freesound #18363), licencia CC0. Archivos: sonido/olas-1|2(.ogg, .mp3)
+- El viento, el fondo de mar y el brillo mágico de la transmutación se generan en el navegador con Web Audio
+  (0 KB, sin licencias de terceros).
 
-TIPOGRAFÍAS — Google Fonts, licencia SIL Open Font License.
-- Instrument Serif, Inter Tight.
+TIPOGRAFÍAS — licencia SIL Open Font License 1.1.
+- Cinzel (Natanael Gama), recortada a los caracteres usados: fuentes/cinzel.woff2.
+- Instrument Serif, Inter Tight (Google Fonts).
 
-AGUA (normales del mar): public/assets/fondo/claroscuro/agua-normales.webp (viene del fondo anterior del proyecto).
+AGUA: fondo/claroscuro/agua-normales.webp (repositorio de ejemplos de three.js, licencia MIT).

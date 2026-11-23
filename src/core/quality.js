@@ -41,7 +41,8 @@ export function detectQuality(gl) {
 //    espera el doble (hasta 60 s) para no oscilar.
 //  · Con ?quality= forzado no hace nada.
 // Mide con performance.now() (no con el delta del loop, que está acotado y subestima los tirones).
-export function createQualityMonitor(getTier, onChange, { ceiling = 'high', forced = false } = {}) {
+// gate(): el monitor solo baja de tier cuando la resolución dinámica ya llegó a su piso (resolucion.js).
+export function createQualityMonitor(getTier, onChange, { ceiling = 'high', forced = false, gate = () => true } = {}) {
   const DOWN_AFTER = 3, UP_FPS = 57, SETTLE = 3, START_GRACE = 4;
   let acc = 0, frames = 0, last = performance.now();
   let grace = START_GRACE, holds = 0, bad = 0, good = 0;
@@ -72,7 +73,7 @@ export function createQualityMonitor(getTier, onChange, { ceiling = 'high', forc
       const i = ORDER.indexOf(tier);
       if (fps < TIER_SETTINGS[tier].targetFps) {
         good = 0;
-        if (++bad >= DOWN_AFTER && i > 0) change(ORDER[i - 1], fps, false);
+        if (++bad >= DOWN_AFTER && i > 0 && gate()) change(ORDER[i - 1], fps, false);
       } else if (fps >= UP_FPS && i < ORDER.indexOf(ceiling)) {
         bad = 0;
         if (++good >= upWait) change(ORDER[i + 1], fps, true);

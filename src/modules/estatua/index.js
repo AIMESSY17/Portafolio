@@ -464,8 +464,12 @@ export default async function createEstatua(ctx) {
         }
       } else if (labelId !== null) { labelId = null; label.classList.remove('is-on'); }
 
-      // ---- lente: profundidad de campo en las salas (todo desenfocado menos la ventana) ----
-      shared.lente.dof = 0.8 * roomK.v * (viewer.isOpen || flying ? 0 : 1);
+      // ---- lente: profundidad de campo (solo high). El foco pasa suave de la estatua a la ventana de la sala ----
+      const dStatue = camera.position.distanceTo(C);
+      shared.lente.dof = 0.55 * roomK.v * (viewer.isOpen || flying ? 0 : 1);
+      // en la sala el foco va a la ventana, con un rango que todavía abarca la estatua: solo se va el fondo lejano
+      shared.lente.focus = dStatue + (ORBITA.frontDist - dStatue) * roomK.v;
+      shared.lente.focusRange = 7 + (Math.max(3, Math.abs(dStatue - ORBITA.frontDist) * 1.6 + 1.5) - 7) * roomK.v;
       shared.lente.rect = L.win;
     },
     resize(w, h) {

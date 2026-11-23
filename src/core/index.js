@@ -9,6 +9,7 @@ import { createBus } from './bus.js';
 import { createShared } from './shared.js';
 import { createComposer } from './composer.js';
 import { createLoader } from './loader.js';
+import { createResolucion } from './resolucion.js';
 
 // Arma el núcleo: renderer, cámara, loop, scroll, calidad, bus, shared y capas.
 export function createCore({ sections, stage, overlay }) {
@@ -24,12 +25,21 @@ export function createCore({ sections, stage, overlay }) {
   const scene = new THREE.Scene();
   const cameraRig = createCameraRig({ shared, isMobile, reducedMotion });
   const camera = cameraRig.camera;
-  const composer = createComposer(renderer, scene, camera, shared);
+  let quality = detectQuality(renderer.getContext());
+  const composer = createComposer(renderer, scene, camera, shared, { tier: quality, assets: `${import.meta.env.BASE_URL}assets/` });
   const loader = createLoader(renderer);
   const loop = createLoop();
   const scroll = createScroll({ sections, bus, shared, reducedMotion });
-
-  let quality = detectQuality(renderer.getContext());
+  // resolución dinámica (resolucion.js): ajusta el pixel ratio dentro del tier, antes de que caigan los fps
+  const dynres = createResolucion({
+    renderer,
+    basePR: () => TIER_SETTINGS[quality].pixelRatio(),
+    forced: new URLSearchParams(location.search).has('resfija'),
+    targetMs: 16.7, // siempre apunta a 60 (en celular, si no llega, baja hasta su piso y el piso de calidad es 30)
+    maxScale: () => (quality === 'low' ? 1 : 1.25), // en low nunca dibuja más fino que el tier
+    busy: () => shared.caida.on || Math.abs(scroll.state.velocity) > 1.5 || document.documentElement.classList.contains('is-project-open'),
+    onApply: (pr) => { renderer.setPixelRatio(pr); composer.setSize(innerWidth, innerHeight); },
+  });
   const modules = new Map(); // nombre -> instancia
   const apis = {};           // nombre -> api pública del módulo (ver CLAUDE.md 5c)
 
@@ -67,7 +77,8 @@ export function createCore({ sections, stage, overlay }) {
   function applyQuality(tier) {
     quality = tier;
     renderer.setPixelRatio(TIER_SETTINGS[tier].pixelRatio());
-    composer.setSize(innerWidth, innerHeight); // el bloom y la lente siguen a la resolución nueva
+    dynres?.reset();
+    composer.setSize(innerWidth, innerHeight); // los buffers del post siguen a la resolución nueva
     // "Hecha de luz" no usa sombras proyectadas en ninguna calidad (la luz la hacen el cielo y el bloom).
     // Queda siempre apagado: prenderlo/apagarlo al cambiar de calidad no recompila nada, pero no suma.
     renderer.shadowMap.enabled = false;
@@ -81,9 +92,9 @@ export function createCore({ sections, stage, overlay }) {
     applyQuality(tier);
     modules.forEach((m) => m.setQuality?.(tier));
     bus.emit('quality:change', { tier });
-  }, { ceiling: quality, forced: isQualityForced() });
+  }, { ceiling: quality, forced: isQualityForced(), gate: () => dynres.atMin() });
   // un módulo avisa que está precompilando: no se mide mientras tanto
-  bus.on('precompile', ({ on }) => monitor.hold(on));
+  bus.on('precompile', ({ on }) => { monitor.hold(on); dynres.hold(on); });
   applyQuality(quality);
 
   // ---------- tamaño ----------
@@ -109,7 +120,9 @@ export function createCore({ sections, stage, overlay }) {
     scroll.update(timeMs);
     cameraRig.update(delta);
     modules.forEach((m) => m.update?.(time, delta, scroll.state));
-    composer.render();
+    dynres.begin();
+    composer.render(delta);
+    dynres.end(delta);
     htmlLayer.render(camera);
     monitor.tick(delta);
   });
@@ -122,6 +135,9 @@ export function createCore({ sections, stage, overlay }) {
   return {
     THREE, scene, camera, cameraRig, renderer, bus, shared, loader, scroll, apis, overlay,
     get quality() { return quality; },
+    /** Resolución dinámica: { s, pr, gpuMs, frameMs, timer } (para ?debug). */
+    resolucion: dynres.state,
+    composer,
     isMobile, reducedMotion,
     /** Monta un módulo con su propio root (WebGL) y htmlRoot (capa HTML). */
     async mount(name, factory) {
@@ -189,10 +205,10 @@ export function createCore({ sections, stage, overlay }) {
         renderer.setRenderTarget(rt);
         renderer.render(scene, camera);
         renderer.setRenderTarget(null);
+        await composer.lutsReady;
         renderer.setScissorTest(true);
         renderer.setScissor(0, 0, 1, 1);
-        composer.render();
-        composer.prewarmLente();
+        composer.prewarm();
         renderer.setScissorTest(false);
       } catch (e) {
         console.warn('[core] no se pudo precalentar todo', e);

@@ -29,6 +29,11 @@ export const FONDO_VIEJO = false;
 
 const SALA_DUR = 0.8;
 const GUST = { strength: 0.8 };
+// LUT de cada sala (public/assets/lente/lut-*.png, elegidas en referencias/DECISIONES.md)
+const SALA_LUT = {
+  'tinta-negra': 'tinta', 'mantra-estetica': 'lavanda', 'aura-aika': 'atardecer', zurklima: 'cielo',
+  'la-pastoril': 'miel', chufas: 'rosa', 'casa-de-muffin': 'canela',
+};
 
 export default async function createFondo(ctx) {
   if (FONDO_VIEJO) return (await import('./claroscuro.js')).default(ctx);
@@ -259,8 +264,8 @@ export default async function createFondo(ctx) {
       L.flare = sunsetK * (1 - night) * (1 - veilK);
       // rayos de luz: fuertes en la caída (cuando sale el horizonte), más suaves con el mar quieto
       L.rays = sunsetK * (1 - night) * (1 - veilK) * (0.42 + 0.58 * Math.min(1, fallSpeed / 35)) * (dimLive > 0.5 ? 0 : 1);
-      L.grade = 1;
-      L.aberracion = reduced ? 0 : ramp(P, [TRAMOS.aberracion[0], TRAMOS.aberracion[0] + 0.3]) * (1 - ramp(P, [TRAMOS.aberracion[1] - 0.3, TRAMOS.aberracion[1]])) * (0.35 + 0.65 * Math.min(1, fallSpeed / 45));
+      // LUT de la escena (el post la funde en 1,3 s): cielo de día, atardecer, cada sala con la suya, hora azul
+      L.lut = P < P_CRUCE ? 'cielo' : night >= 0.5 ? 'azul' : (salaId && SALA_LUT[salaId]) || 'atardecer';
 
       // ---- proyecto abierto: baja la luz ----
       dimLive += (dim - dimLive) * damp(4, dt);

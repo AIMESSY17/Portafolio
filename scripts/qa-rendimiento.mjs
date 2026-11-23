@@ -22,14 +22,14 @@ for (const tier of tiers) {
   const mobile = tier === 'low' && process.env.LOW_AS_PHONE;
   const ctx = await browser.newContext(mobile
     ? { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }
-    : { viewport: { width: 1440, height: 900 }, deviceScaleFactor: DPR });
+    : { viewport: { width: Number(process.env.W || 1920), height: Number(process.env.H || 1080) }, deviceScaleFactor: DPR });
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   const changes = [];
   page.on('console', (m) => { if (/\[calidad\]/.test(m.text())) changes.push(m.text()); });
-  await page.goto(`${base}/?stats&nointro${tier === 'auto' ? '' : `&quality=${tier}`}`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${base}/?stats&nointro${tier === 'auto' ? '' : `&quality=${tier}`}${process.env.EXTRA ? '&' + process.env.EXTRA : ''}`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => document.documentElement.classList.contains('is-ready') && window.__fondoStats, null, { timeout: 90000 });
   await sleep(2500);
   const phase = async (name, script, ms) => {

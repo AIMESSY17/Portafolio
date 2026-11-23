@@ -18,10 +18,13 @@ export const NUMBER_KEYS = [
   'glints', 'spec', 'glitter', 'reflI', 'goldMix', 'detail', 'hazeK', 'sunK',
 ];
 
+// Versión película: los panoramas entran como luz real (decodificados) y el tono lo pone ACES en el post, que sube
+// mucho los medios. Por eso la exposición de cada foto va por debajo de 1 y el atardecer (Belfast, muy brumoso)
+// lleva más contraste y saturación: el LUT termina de darle el color.
 const COMUN = {
-  expoDia: 1.0, expoTarde: 1.0, expoCrep: 1.0,
-  contrastDia: 1.16, contrastTarde: 1.12, contrastCrep: 1.08,
-  satDia: 1.18, satTarde: 1.12, satCrep: 1.05,
+  expoDia: 0.6, expoTarde: 0.38, expoCrep: 0.5,
+  contrastDia: 1.12, contrastTarde: 1.45, contrastCrep: 1.12,
+  satDia: 1.12, satTarde: 1.38, satCrep: 1.1,
 };
 
 const DIA = {
@@ -30,7 +33,7 @@ const DIA = {
   cloudLit: '#FFFFFF', cloudShade: '#9FAABD', veil: '#F6F8FA',
   seaDeep: '#3A4A5E', seaShallow: '#7E93A6', haze: '#E4EAF0', sand: '#9C8F80', foam: '#FFFFFF',
   hemiSky: '#CFE0EC', hemiGround: '#EEF1F4', glintGold: '#FFF3DA', glintSilver: '#FFFFFF', horizonte: '#EAF1F5', hazeK: 0.22, sunK: 0.35,
-  belowK: 1, sunI: 1.4, hemiI: 0.12, envI: 1.0, exposure: 1.0,
+  belowK: 1, sunI: 1.4, hemiI: 0.12, envI: 1.0, exposure: 0.82,
   glints: 0, spec: 0.5, glitter: 0.25, reflI: 1, goldMix: 0.5, detail: 0.5,
 };
 
@@ -40,18 +43,18 @@ const ATARDECER = {
   cloudLit: '#FFD9A8', cloudShade: '#6D6384', veil: '#EFE2DA',
   seaDeep: '#16141F', seaShallow: '#463F55', haze: '#B9A6B3', sand: '#2B2730', foam: '#F3E1C8',
   hemiSky: '#8E86AC', hemiGround: '#4A3F4A', glintGold: '#FFE0A2', glintSilver: '#F5F3FF', horizonte: '#EDB98C', hazeK: 0.36, sunK: 1,
-  belowK: 0, sunI: 2.0, hemiI: 0.16, envI: 1.0, exposure: 1.0,
+  belowK: 0, sunI: 2.0, hemiI: 0.16, envI: 1.0, exposure: 0.85,
   glints: 1, spec: 1, glitter: 1, reflI: 1, goldMix: 0.7, detail: 0.55,
 };
 
 const NOCHE = {
   ...COMUN,
-  expoCrep: 0.62, contrastCrep: 1.12,
+  expoCrep: 0.42, contrastCrep: 1.15,
   sun: '#A8B8E4', skyTint: '#FFFFFF', below: '#2A3356',
   cloudLit: '#56628F', cloudShade: '#232A49', veil: '#3E4B78',
   seaDeep: '#0B0F1C', seaShallow: '#1F2740', haze: '#363F62', sand: '#1B1D26', foam: '#B9C5EA',
   hemiSky: '#3A4A7C', hemiGround: '#14141E', glintGold: '#E6C8A4', glintSilver: '#D6E0FF', horizonte: '#55659A', hazeK: 0.5, sunK: 0,
-  belowK: 0, sunI: 0.3, hemiI: 0.2, envI: 0.75, exposure: 1.05,
+  belowK: 0, sunI: 0.3, hemiI: 0.2, envI: 0.75, exposure: 0.95,
   glints: 0.16, spec: 0.25, glitter: 0.35, reflI: 1, goldMix: 0.2, detail: 0.4,
 };
 

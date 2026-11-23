@@ -17,7 +17,8 @@ export const SKY_LAYER = 2;
 export const PANOS = {
   dia: { file: 'dia', hdr: 'dia.hdr', sunU: 0.5952, sunV: 0.2344, az: 118 },
   atardecer: { file: 'atardecer', hdr: 'atardecer.hdr', sunU: 0.637, sunV: 0.4846, az: -17 },
-  crepusculo: { file: 'crepusculo', hdr: 'crepusculo.hdr', sunU: 0.6013, sunV: 0.4266, az: -12 },
+  // hora azul = Kloppenheim 06 (versión película): el resplandor más fuerte medido en su EXR (scripts/assets/cielos.json)
+  crepusculo: { file: 'crepusculo', hdr: 'crepusculo.hdr', sunU: 0.6069, sunV: 0.4561, az: -12 },
 };
 /** Corrimiento horizontal (fracción de vuelta) que lleva el sol de la foto al azimut pedido. */
 export function panoOffset(p) {
@@ -69,13 +70,15 @@ vec2 equi(vec3 d, float off){
   float v = asin(clamp(d.y, -1.0, 1.0)) / 3.14159265 + 0.5;
   return vec2(fract(u), v);
 }
+// los panoramas vienen codificados con Reinhard (y = x / (1 + x), scripts/assets/cielos.py): se recupera la luz real
+vec3 pano(sampler2D t, vec2 uv){ vec3 y = texture2D(t, uv).rgb; return y / max(1.0 - y, vec3(1.0 / 48.0)); }
 void main(){
   vec3 d = normalize(vDir);
   vec3 col = vec3(0.0);
-  if (uW.x > 0.001) col += uW.x * grade(texture2D(uDia, equi(d, uOff.x)).rgb, uExpo.x, uContrast.x, uSat.x);
-  if (uW.y > 0.001) col += uW.y * grade(texture2D(uTarde, equi(d, uOff.y)).rgb, uExpo.y, uContrast.y, uSat.y);
+  if (uW.x > 0.001) col += uW.x * grade(pano(uDia, equi(d, uOff.x)), uExpo.x, uContrast.x, uSat.x);
+  if (uW.y > 0.001) col += uW.y * grade(pano(uTarde, equi(d, uOff.y)), uExpo.y, uContrast.y, uSat.y);
   if (uW.z > 0.001) {
-    vec3 c = grade(texture2D(uCrep, equi(d, uOff.z)).rgb, uExpo.z, uContrast.z, uSat.z);
+    vec3 c = grade(pano(uCrep, equi(d, uOff.z)), uExpo.z, uContrast.z, uSat.z);
     // hora azul: más oscuro hacia arriba, con la franja clara pegada al horizonte
     float up = clamp(d.y, 0.0, 1.0);
     c *= mix(1.0, mix(0.34, 0.06, pow(up, 0.45)), uNight);
@@ -88,7 +91,9 @@ void main(){
     float u = atan(g.x, -g.z) / PI2 + 0.5;
     float v = 0.5 + asin(clamp(g.y, -1.0, 1.0)) / 3.14159265;
     vec3 via = texture2D(uVia, vec2(u, v)).rgb;
-    col += via * via * 1.6 * uVia1 * smoothstep(-0.02, 0.25, d.y);
+    // hora azul: la banda apenas se insinúa (fría y desaturada; el color real de la foto, al 35 %)
+    via = mix(vec3(dot(via, vec3(0.3, 0.55, 0.15))) * vec3(0.85, 0.92, 1.1), via, 0.35);
+    col += via * 0.32 * uVia1 * smoothstep(-0.02, 0.25, d.y);
   }
   col *= uTint;
   // perspectiva aérea: cerca de la línea del horizonte el aire se aclara y se entibia (más hacia el lado del sol)
@@ -101,9 +106,9 @@ void main(){
   // el sol: resplandor ancho y cálido + disco chico y blanco (el que reflejan el mar y el oro)
   if (uSunK > 0.001) {
     float sd = max(dot(d, uSunDir), 0.0);
-    col += uSunCol * (pow(sd, 6.0) * 0.05 + pow(sd, 40.0) * 0.14 + pow(sd, 420.0) * 0.55) * uSunK;
+    col += uSunCol * (pow(sd, 8.0) * 0.04 + pow(sd, 60.0) * 0.16 + pow(sd, 600.0) * 1.6) * uSunK;
     float disc = smoothstep(0.99978, 0.99992, sd);
-    col = mix(col, vec3(1.0, 0.96, 0.88) * 2.4, disc * uSunK);
+    col = mix(col, vec3(1.0, 0.94, 0.84) * 26.0, disc * uSunK); // luz real: el post lo hace florecer y le pone el destello
   }
   // abajo del horizonte en el hero: el mar de nubes (claro), que sigue hasta el horizonte
   col = mix(col, uBelow, uBelowK * smoothstep(0.0, -0.16, d.y));

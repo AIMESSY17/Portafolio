@@ -107,7 +107,7 @@ export function gildingUniforms(THREE, g) {
     uTime: { value: 0 },
     // ALQUIMIA: el mármol se transmuta en oro pulido de abajo hacia arriba, con símbolos que se dibujan
     uAlq: { value: 0 },                                  // 0..1 avance de la transmutación (el frente sube por la estatua)
-    uAlqGold: { value: new THREE.Color('#C98E32') },     // oro pulido
+    uAlqGold: { value: new THREE.Color('#E9B65A') },     // oro pulido (reflectancia de oro real, apenas más cálida)
     uAlqSym: { value: 1 },                               // 0..1 cuántos símbolos (calidad: low = 0, solo el frente)
     uSunV: { value: new THREE.Vector3(0, 0.3, -1) },     // hacia el sol, en espacio de vista
     uSunCol: { value: new THREE.Color('#FFC27A') },
