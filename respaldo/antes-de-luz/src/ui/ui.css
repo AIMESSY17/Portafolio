@@ -1,0 +1,178 @@
+/* ===== Capa de texto (compartida) ===== */
+:root {
+  --marmol: #ede6da;
+  --marmol-sombra: #b9ae9c;
+  --oro: #c9a227;
+  --oro-brillo: #f1d27a;
+  --sepia: #5b3a1e;
+  --pergamino: #e8d9b5;
+  --azul-fresco: #5d7fa3;
+  --terracota: #a4472e;
+  --fondo: #14100b;
+  --font-display: 'Instrument Serif', 'Times New Roman', serif;
+  --font-italic: 'Cormorant Garamond', 'Garamond', serif; /* cursiva renacentista */
+  --font-ui: 'Hanken Grotesk', system-ui, sans-serif;
+  /* grotesca compacta en mayúsculas (referencia "TO NEW POSSIBILITIES"):
+     marca, secciones, menú y nombres de proyectos */
+  --font-grotesk: 'Inter Tight', 'Helvetica Neue', Arial, sans-serif;
+  --gutter: clamp(16px, 4vw, 56px);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--fondo); color: var(--marmol); }
+body { font: 400 16px/1.5 var(--font-ui); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+/* el gesto horizontal es para girar la estatua; el vertical sigue siendo scroll */
+html, body { touch-action: pan-y pinch-zoom; }
+html.scroll-locked { overscroll-behavior: none; }
+a { color: inherit; }
+
+/* --- capas --- */
+.stage { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+.stage .html-layer { position: absolute !important; inset: 0; z-index: 0; pointer-events: none; }
+.stage .webgl-canvas { position: absolute; inset: 0; z-index: 1; display: block; pointer-events: none; }
+.content { position: relative; z-index: 2; pointer-events: none; }
+.content a, .content button { pointer-events: auto; }
+.overlay { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
+.site-header { z-index: 6; }
+
+/* --- header --- */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px var(--gutter);
+  pointer-events: none;
+}
+.site-header a { pointer-events: auto; text-decoration: none; }
+.brand { font: 600 19px/1 var(--font-grotesk); letter-spacing: -0.03em; text-transform: uppercase; }
+.site-nav { display: flex; gap: clamp(14px, 3vw, 34px); }
+.site-nav a {
+  font: 600 13px/1 var(--font-grotesk);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: rgba(237, 230, 218, 0.7);
+  transition: color 0.3s;
+}
+.site-nav a:hover, .site-nav a:focus-visible { color: var(--oro-brillo); }
+html.is-project-open .site-header { opacity: 0; transition: opacity 0.3s; }
+
+/* --- secciones --- */
+.section { position: relative; min-height: calc(var(--h, 1) * 100svh); padding: 0 var(--gutter); }
+
+/* hero: una sola línea abajo */
+.section--hero { display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: clamp(28px, 7vh, 72px); }
+.hero__line {
+  margin: 0;
+  font: 400 clamp(15px, 1.35vw, 19px)/1.3 var(--font-display);
+  letter-spacing: 0.01em;
+  color: rgba(237, 230, 218, 0.72);
+}
+
+/* obras: las salas son solo alto de scroll (el contenido es el panel fijo .sala) */
+.section--obras { padding: 0; }
+
+/* panel de la sala actual */
+.sala {
+  position: fixed;
+  z-index: 3;
+  left: clamp(260px, 21.5vw, 340px);
+  top: 50%;
+  width: min(26vw, 340px);
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.sala.is-on { opacity: 1; }
+.sala.is-swap { opacity: 0; transform: translateY(calc(-50% + 10px)); transition-duration: 0.22s; }
+.sala > * { margin: 0; }
+.sala__num { font: 600 11px/1 var(--font-grotesk); letter-spacing: 0.14em; color: rgba(237, 230, 218, 0.55); }
+.sala__name { margin-top: 18px; font: 400 clamp(40px, 4.4vw, 68px)/0.96 var(--font-display); letter-spacing: -0.015em; }
+.sala__rubro { margin-top: 12px; font: italic 400 clamp(19px, 1.7vw, 25px)/1.2 var(--font-italic); color: var(--oro-brillo); }
+.sala__linea { margin-top: 22px; font: 400 15px/1.55 var(--font-ui); color: rgba(237, 230, 218, 0.72); }
+.sala__link {
+  display: inline-block;
+  margin-top: 26px;
+  font: 600 12px/1 var(--font-grotesk);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--marmol);
+  border-bottom: 1px solid rgba(237, 230, 218, 0.4);
+  padding-bottom: 5px;
+  pointer-events: auto;
+  transition: color 0.3s, border-color 0.3s;
+}
+.sala__link[hidden] { display: none; }
+.sala__link:hover, .sala__link:focus-visible { color: var(--oro-brillo); border-color: var(--oro-brillo); }
+html.is-project-open .sala { opacity: 0; }
+
+/* contacto: sin cajas */
+.section--contacto { display: flex; flex-direction: column; justify-content: center; }
+.contacto { max-width: 620px; }
+.contacto__title { margin: 0; font: 400 clamp(64px, 9.5vw, 144px)/0.9 var(--font-display); letter-spacing: -0.02em; text-shadow: 0 2px 30px rgba(0, 0, 0, 0.6); }
+.contacto__links { display: flex; gap: clamp(20px, 3vw, 40px); margin: clamp(22px, 4vh, 40px) 0 0; }
+.contacto__links a {
+  font: italic 400 clamp(22px, 2.2vw, 30px)/1 var(--font-italic);
+  color: var(--oro-brillo);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(241, 210, 122, 0.4);
+  padding-bottom: 4px;
+}
+.contacto__links a[hidden] { display: none; }
+.contacto__links a:hover, .contacto__links a:focus-visible { color: var(--marmol); border-color: var(--marmol); }
+.site-footer {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: 18px;
+  font-size: 11px;
+  color: rgba(237, 230, 218, 0.4);
+}
+.site-footer a { pointer-events: auto; color: rgba(237, 230, 218, 0.6); }
+
+/* --- sin WebGL: lista de proyectos que abre el mismo visor --- */
+.fallback-list { list-style: none; margin: 40px 0 0; padding: 0; display: grid; gap: 12px; max-width: 520px; }
+.fallback-list button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 20px 22px;
+  border: 1px solid rgba(241, 210, 122, 0.2);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--marmol);
+  text-align: left;
+  cursor: pointer;
+}
+.fallback-list strong { font: 600 26px/1 var(--font-grotesk); letter-spacing: -0.04em; text-transform: uppercase; }
+.fallback-list span { font-size: 13px; color: rgba(237, 230, 218, 0.55); }
+html.no-webgl .stage { background: radial-gradient(ellipse at 50% 30%, #2a2219, var(--fondo) 70%); }
+
+.noscript { position: fixed; inset: auto 0 0; padding: 16px; text-align: center; }
+
+@media (max-width: 699px) {
+  .site-header { padding-top: 16px; }
+  .site-nav a { font-size: 11px; }
+  .section--hero { padding-bottom: 22px; }
+  /* celular: el panel va abajo, debajo de la ventana grande */
+  .sala { left: var(--gutter); right: var(--gutter); width: auto; top: auto; bottom: clamp(22px, 5vh, 48px); transform: none; }
+  .sala.is-swap { transform: translateY(8px); }
+  .sala__name { margin-top: 12px; font-size: clamp(34px, 10.5vw, 46px); }
+  .sala__linea { margin-top: 14px; font-size: 14px; }
+  .sala__link { margin-top: 18px; }
+}
+html.no-webgl .section--obras { min-height: auto; padding: 100px var(--gutter) 40px; }
+html.no-webgl .sala { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

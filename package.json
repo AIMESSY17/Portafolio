@@ -1,0 +1,29 @@
+{
+  "name": "samotracia",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview --host",
+    "check-embeds": "node scripts/check-embeds.mjs",
+    "preview:file": "node scripts/build-preview-file.mjs",
+    "capturas": "node scripts/capturar.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "gsap": "^3.12.5",
+    "lenis": "^1.1.18",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "@gltf-transform/cli": "^4.1.1",
+    "playwright": "^1.64.1",
+    "vite": "^5.4.11",
+    "vite-plugin-singlefile": "^2.0.3"
+  },
+  "private": true,
+  "type": "module"
+}

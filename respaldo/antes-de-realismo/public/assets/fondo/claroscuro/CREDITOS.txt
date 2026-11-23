@@ -1,0 +1,5 @@
+Créditos de recursos del fondo "Claroscuro"
+- agua-normales.webp, destello.webp, destello-anillo.webp, chispa.png: del repositorio de ejemplos de three.js (github.com/mrdoob/three.js, licencia MIT).
+- instrument-serif.json: tipografía Instrument Serif (Google Fonts, licencia SIL Open Font License 1.1), convertida para TextGeometry.
+- columna-puntos.bin: puntos muestreados del modelo de columna corintia (ver ASSETS.md: completar autor y licencia de Sketchfab).
+- Texturas de mármol: Poly Haven (CC0).

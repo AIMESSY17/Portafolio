@@ -1,0 +1,36 @@
+CRÉDITOS DE RECURSOS DE TERCEROS — Portafolio "Samotracia"
+=============================================================
+
+MODELO 3D
+- "Nike of Samothrace" de p_moraiti (Sketchfab), licencia CC BY 4.0.
+  https://sketchfab.com/3d-models/nike-of-samothrace-0ba90c17bcc342b5bf6f08ea766662dd
+  (El crédito está visible en el pie de la sección Contacto.)
+
+CIELOS (panoramas y HDR) — Poly Haven, licencia CC0 (dominio público). https://polyhaven.com/hdris
+- Día (hero):        "Kloofendal 48d Partly Cloudy (Pure Sky)" — Greg Zaal, Jarod Guest
+                      https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky
+- Atardecer (mar):    "Belfast Sunset (Pure Sky)" — Greg Zaal, Dimitrios Savva, Jarod Guest
+                      https://polyhaven.com/a/belfast_sunset_puresky
+- Hora azul (Contacto): "Qwantani Dusk 2 (Pure Sky)" — Greg Zaal, Jarod Guest
+                      https://polyhaven.com/a/qwantani_dusk_2_puresky
+  Archivos: public/assets/fondo/cielo/dia|atardecer|crepusculo(.webp, -2k.webp, .hdr)
+  · .webp 4K y 2K: el "Tonemapped JPG" de Poly Haven reducido (el del crepúsculo, que venía cortado desde
+    el servidor, se generó desde su HDR de 4K con la curva ACES).
+  · .hdr: el HDR de 1K original, para la luz y los reflejos.
+- Nubes (nubes.webp, nubes-1k.webp): recortes de cúmulos de la foto "Kloofendal 48d Partly Cloudy" con
+  transparencia calculada (CC0, misma fuente).
+
+VÍA LÁCTEA Y ESTRELLAS — ESO/S. Brunier, licencia CC BY 4.0.
+- "The Milky Way panorama" (eso0932a). https://www.eso.org/public/images/eso0932a/
+  Archivos: public/assets/fondo/cielo/estrellas(.webp, -2k.webp) = el brillo de la banda (sin los puntos de
+  las estrellas); estrellas.bin = posición, brillo y color de las 2400 estrellas más brillantes de la foto.
+  (El crédito está visible en el pie de la sección Contacto.)
+
+SONIDO
+- No usa archivos: el viento y el agua se generan en el navegador con Web Audio (ruido filtrado).
+  0 KB, sin licencias de terceros.
+
+TIPOGRAFÍAS — Google Fonts, licencia SIL Open Font License.
+- Instrument Serif, Inter Tight.
+
+AGUA (normales del mar): public/assets/fondo/claroscuro/agua-normales.webp (viene del fondo anterior del proyecto).

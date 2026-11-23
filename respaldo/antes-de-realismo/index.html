@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es" data-tono="oscuro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#E7ECEA" />
+    <title>Diseño y desarrollo web — Comodoro Rivadavia</title>
+    <meta name="description" content="Portfolio de diseño y desarrollo web en Comodoro Rivadavia: la Victoria de Samotracia hecha de luz, bajando del cielo al mar entre nuestras obras." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23E7ECEA'/%3E%3Cpath d='M9 22c3-1 5-4 7-10 1 5 3 8 7 10-5 0-9-1-14 0z' fill='%23C9A227'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@200;300;400&display=swap" rel="stylesheet" />
+    <link rel="preload" href="/assets/estatua/victoria-lod0.glb" as="fetch" type="model/gltf-binary" crossorigin />
+  </head>
+  <body>
+    <!-- Escenario 3D fijo (el canvas WebGL) -->
+    <div id="stage" class="stage" aria-hidden="true"></div>
+
+    <!-- Velo de carga: se va cuando todo está compilado y subido a la placa de video -->
+    <div class="velo" aria-hidden="true"></div>
+
+    <!-- Capa de texto (src/ui/) -->
+    <main id="content" class="content">
+      <section id="hero" data-section="hero" class="section section--hero">
+        <div class="hero">
+          <p class="hero__linea">Diseño y desarrollo web — Comodoro Rivadavia</p>
+          <span class="hero__bajar" aria-hidden="true"><i></i></span>
+        </div>
+      </section>
+
+      <!-- La Victoria atraviesa las nubes y cae la tarde sobre el mar (solo alto de scroll) -->
+      <section id="descenso" data-section="descenso" class="section" aria-hidden="true"></section>
+
+      <!-- Una sala de 100vh por proyecto (el alto lo pone src/config/sections.js) -->
+      <section id="obras" data-section="obras" class="section section--obras" aria-label="Obras">
+        <ul class="fallback-list" data-fallback-projects hidden></ul>
+      </section>
+
+      <section id="contacto" data-section="contacto" class="section section--contacto">
+        <div class="contacto">
+          <h2 class="contacto__titulo">Hablemos.</h2>
+          <p class="contacto__links">
+            <a data-contacto="whatsapp" target="_blank" rel="noopener" hidden>WhatsApp</a>
+            <a data-contacto="mail" hidden>Mail</a>
+          </p>
+        </div>
+        <footer class="credito">
+          <p>
+            “<a href="https://sketchfab.com/3d-models/nike-of-samothrace-0ba90c17bcc342b5bf6f08ea766662dd" target="_blank" rel="noopener">Nike of Samothrace</a>”
+            by <a href="https://sketchfab.com/p_moraiti" target="_blank" rel="noopener">p_moraiti</a>,
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY</a>
+          </p>
+        </footer>
+      </section>
+    </main>
+
+    <!-- Ficha de la sala actual (fija, debajo de la ventana grande): la llena src/ui/ui.js -->
+    <aside id="sala" class="sala" aria-live="polite">
+      <div class="sala__a">
+        <p class="sala__num"></p>
+        <h2 class="sala__nombre"></h2>
+        <p class="sala__rubro"></p>
+      </div>
+      <div class="sala__b">
+        <p class="sala__linea"></p>
+        <a class="sala__link" target="_blank" rel="noopener" hidden><span>Ver sitio</span> ↗</a>
+      </div>
+    </aside>
+
+    <!-- Capa superior para módulos (visor de proyectos) -->
+    <div id="overlay" class="overlay"></div>
+
+    <noscript><p class="noscript">Este portfolio necesita JavaScript para mostrar la experiencia 3D.</p></noscript>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

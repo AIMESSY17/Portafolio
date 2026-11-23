@@ -1,0 +1,217 @@
+/* ===== Capa de texto — "Hecha de luz" =====
+   Dos familias: Instrument Serif para nombres y títulos, Inter Tight fina y chica para datos.
+   Tinta oscura sobre el cielo claro; blanco cálido sobre el mar y la noche. Sin cajas, bordes ni tarjetones.
+   Una sola curva: expo.out para entradas, power3.inOut para transiciones. */
+:root {
+  --tinta: #1a1612;
+  --blanco: #f3eee6;
+  --oro: #c9a227;
+  --oro-brillo: #f1d27a;
+  --oro-suave: #e9c987;
+  --cielo: #e7ecea;
+  --font-serif: 'Instrument Serif', 'Times New Roman', Georgia, serif;
+  --font-datos: 'Inter Tight', 'Helvetica Neue', Arial, sans-serif;
+  /* compatibilidad con estilos de módulos */
+  --font-display: var(--font-serif);
+  --font-italic: var(--font-serif);
+  --font-ui: var(--font-datos);
+  --marmol: var(--blanco);
+  --ease-entrada: cubic-bezier(0.16, 1, 0.3, 1); /* expo.out */
+  --ease-mov: cubic-bezier(0.65, 0, 0.35, 1);    /* power3.inOut */
+  --gutter: clamp(16px, 5vw, 72px);
+  --texto: var(--tinta);
+  --texto-2: rgba(26, 22, 18, 0.62);
+  color-scheme: light;
+}
+html[data-tono='claro'] {
+  --texto: var(--blanco);
+  --texto-2: rgba(243, 238, 230, 0.66);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--cielo); color: var(--texto); }
+body {
+  font: 300 15px/1.55 var(--font-datos);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+}
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+/* el gesto horizontal es para girar la estatua; el vertical sigue siendo scroll */
+html, body { touch-action: pan-y pinch-zoom; }
+html.scroll-locked { overscroll-behavior: none; }
+a { color: inherit; }
+::selection { background: rgba(201, 162, 39, 0.35); }
+
+/* --- capas --- */
+.stage { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+.stage .html-layer { position: absolute !important; inset: 0; z-index: 0; pointer-events: none; }
+.stage .webgl-canvas { position: absolute; inset: 0; z-index: 1; display: block; pointer-events: none; }
+.content { position: relative; z-index: 2; pointer-events: none; }
+.content a, .content button { pointer-events: auto; }
+.overlay { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
+
+/* --- velo de carga --- */
+.velo {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: radial-gradient(ellipse at 50% 42%, #f8f5ef, var(--cielo) 70%);
+  pointer-events: none;
+  transition: opacity 1.4s var(--ease-entrada), visibility 0s linear 1.4s;
+}
+html.is-ready .velo { opacity: 0; visibility: hidden; }
+
+/* --- secciones --- */
+.section { position: relative; min-height: calc(var(--h, 1) * 100svh); padding: 0 var(--gutter); }
+
+/* hero: una línea chica y una indicación sutil de scroll, abajo al centro */
+.section--hero { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: clamp(26px, 5.5vh, 60px); }
+.hero { display: flex; flex-direction: column; align-items: center; gap: 22px; transition: opacity 0.6s var(--ease-mov), transform 0.6s var(--ease-mov); }
+.hero__linea {
+  margin: 0;
+  font: 300 13px/1.4 var(--font-datos);
+  letter-spacing: 0.06em;
+  color: var(--texto-2);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 1.6s var(--ease-entrada) 0.5s, transform 1.6s var(--ease-entrada) 0.5s;
+}
+html.is-ready .hero__linea { opacity: 1; transform: none; }
+.hero__bajar { position: relative; display: block; width: 1px; height: 46px; background: rgba(26, 22, 18, 0.16); overflow: hidden; opacity: 0; transition: opacity 1.6s var(--ease-entrada) 1s; }
+html.is-ready .hero__bajar { opacity: 1; }
+.hero__bajar i { position: absolute; left: 0; top: -14px; width: 1px; height: 14px; background: linear-gradient(transparent, var(--tinta)); animation: bajar 2.6s var(--ease-mov) infinite; }
+@keyframes bajar { 0% { transform: translateY(0); } 70%, 100% { transform: translateY(64px); } }
+html.fuera-hero .hero { opacity: 0; transform: translateY(-8px); }
+
+/* obras: las salas son solo alto de scroll (el contenido es la ficha fija .sala) */
+.section--obras { padding: 0; }
+
+/* --- ficha de la sala: debajo de la ventana grande, alineada a ella (la ubica ui.js) --- */
+.sala {
+  position: fixed;
+  z-index: 3;
+  left: var(--cap-x, 50vw);
+  top: var(--cap-y, 70vh);
+  width: var(--cap-w, 44vw);
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 8px clamp(20px, 3vw, 48px);
+  align-items: start;
+  color: var(--blanco);
+  text-shadow: 0 1px 22px rgba(12, 9, 6, 0.32); /* sin caja: un velo de sombra apenas */
+  pointer-events: none;
+}
+/* la ficha está armada desde la carga con opacidad 0 (así sus letras ya están dibujadas al entrar a la primera sala) */
+.sala:not(.is-on) .sala__link { pointer-events: none; }
+.sala > * > * { margin: 0; }
+.sala__num { font: 300 11px/1 var(--font-datos); letter-spacing: 0.22em; font-variant-numeric: tabular-nums; color: rgba(243, 238, 230, 0.72); }
+.sala__nombre { margin-top: 12px !important; font: 400 clamp(38px, 3.9vw, 62px)/0.98 var(--font-serif); letter-spacing: -0.012em; text-wrap: balance; }
+.sala__rubro { margin-top: 10px !important; font: italic 400 clamp(18px, 1.45vw, 22px)/1.25 var(--font-serif); color: var(--oro-suave); }
+.sala__b { padding-top: 23px; }
+.sala__linea { font: 300 14px/1.6 var(--font-datos); color: rgba(243, 238, 230, 0.74); max-width: 38ch; }
+.sala__link {
+  position: relative;
+  display: inline-block;
+  margin-top: 18px !important;
+  font: 400 12px/1 var(--font-datos);
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  color: var(--blanco);
+  padding-bottom: 7px;
+  pointer-events: auto;
+}
+.sala__link[hidden] { display: none; }
+.sala__link::after, .contacto__links a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--oro-brillo);
+  transform: scaleX(0.28);
+  transform-origin: left;
+  opacity: 0.7;
+  transition: transform 0.7s var(--ease-entrada), opacity 0.7s var(--ease-entrada);
+}
+.sala__link:hover::after, .sala__link:focus-visible::after { transform: scaleX(1); opacity: 1; }
+.sala__link:focus-visible { outline: none; }
+html.is-project-open .sala { opacity: 0; transition: opacity 0.4s var(--ease-mov); }
+
+/* --- contacto: la orilla a la hora azul --- */
+.section--contacto { display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: clamp(96px, 21vh, 230px); color: var(--blanco); }
+.contacto { max-width: 640px; margin-left: clamp(0px, 2vw, 40px); text-shadow: 0 2px 30px rgba(8, 10, 24, 0.35); opacity: 0; transform: translateY(18px); transition: opacity 1.2s var(--ease-entrada), transform 1.2s var(--ease-entrada); }
+html.en-contacto .contacto { opacity: 1; transform: none; }
+.contacto__titulo { margin: 0; font: 400 clamp(72px, 10.5vw, 172px)/0.9 var(--font-serif); letter-spacing: -0.02em; }
+.contacto__links { display: flex; flex-wrap: wrap; gap: 10px clamp(26px, 3.4vw, 52px); margin: clamp(24px, 4vh, 44px) 0 0; }
+.contacto__links a {
+  position: relative;
+  font: italic 400 clamp(24px, 2.3vw, 34px)/1.1 var(--font-serif);
+  color: var(--blanco);
+  text-decoration: none;
+  padding-bottom: 6px;
+}
+.contacto__links a::after { transform: scaleX(0); }
+.contacto__links a:hover::after, .contacto__links a:focus-visible::after { transform: scaleX(1); opacity: 1; }
+.contacto__links a:focus-visible { outline: none; }
+.contacto__links a[hidden] { display: none; }
+.credito {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: max(16px, env(safe-area-inset-bottom));
+  font: 300 11px/1.4 var(--font-datos);
+  letter-spacing: 0.04em;
+  color: rgba(243, 238, 230, 0.46);
+}
+.credito p { margin: 0; }
+.credito a { pointer-events: auto; color: rgba(243, 238, 230, 0.66); text-decoration: none; }
+.credito a:hover { color: var(--oro-brillo); }
+
+/* --- sin WebGL: lista de proyectos que abre el mismo visor --- */
+.fallback-list { list-style: none; margin: 0 auto; padding: 120px 0 60px; display: grid; gap: 4px; max-width: 640px; }
+.fallback-list button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 18px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(26, 22, 18, 0.12);
+  background: transparent;
+  color: var(--tinta);
+  text-align: left;
+  cursor: pointer;
+}
+.fallback-list strong { font: 400 34px/1 var(--font-serif); }
+.fallback-list span { font: 300 13px/1.4 var(--font-datos); color: rgba(26, 22, 18, 0.6); max-width: 30ch; text-align: right; }
+html.no-webgl .stage { background: linear-gradient(#cfdde4, var(--cielo) 60%); }
+html.no-webgl .velo { display: none; }
+html.no-webgl .section--obras { min-height: auto; padding: 0 var(--gutter); }
+html.no-webgl .sala { display: none; }
+html.no-webgl .section--contacto, html.no-webgl .contacto { color: var(--tinta); opacity: 1; transform: none; }
+html.no-webgl .credito, html.no-webgl .credito a { color: rgba(26, 22, 18, 0.6); }
+
+.noscript { position: fixed; inset: auto 0 0; padding: 16px; text-align: center; }
+
+/* --- celular: una sola columna; la estatua arriba y chica en las salas, los textos abajo --- */
+@media (max-width: 699px), (max-aspect-ratio: 9/10) {
+  .sala { grid-template-columns: 1fr; gap: 0; }
+  .sala__nombre { margin-top: 10px !important; font-size: clamp(34px, 9.6vw, 44px); }
+  .sala__rubro { font-size: 18px; }
+  .sala__b { padding-top: 12px; }
+  .sala__linea { font-size: 13.5px; }
+  .sala__link { margin-top: 14px !important; }
+  .section--contacto { padding-bottom: 76px; }
+  .contacto { margin-left: 0; }
+  .contacto__titulo { font-size: clamp(64px, 19vw, 96px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.25s !important; transition-delay: 0s !important; }
+}

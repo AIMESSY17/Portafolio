@@ -1,0 +1,46 @@
+[
+  {
+    "id": "armando-medialunas",
+    "title": "Armando Medialunas",
+    "author": "[NOMBRE]",
+    "url": "",
+    "embed": "iframe",
+    "localPath": "",
+    "description": "Aplicación empresarial orientada a la gestión y evaluación de empleados.",
+    "tags": ["app", "gestión"],
+    "accent": "#C9A227"
+  },
+  {
+    "id": "mantra-estetica",
+    "title": "Mantra Estética",
+    "author": "[NOMBRE]",
+    "url": "",
+    "embed": "iframe",
+    "localPath": "",
+    "description": "Sitio web comercial para un negocio de estética y tratamientos.",
+    "tags": ["sitio", "estética"],
+    "accent": "#F1D27A"
+  },
+  {
+    "id": "ginashop",
+    "title": "GinaShop",
+    "author": "[NOMBRE]",
+    "url": "",
+    "embed": "iframe",
+    "localPath": "",
+    "description": "Catálogo y tienda digital de productos de manicura y estética facial.",
+    "tags": ["tienda", "catálogo"],
+    "accent": "#C9A227"
+  },
+  {
+    "id": "zurklima",
+    "title": "ZURKLIMA",
+    "author": "[NOMBRE]",
+    "url": "",
+    "embed": "iframe",
+    "localPath": "",
+    "description": "Portfolio creativo y fotográfico con una estética urbana y cinematográfica.",
+    "tags": ["portfolio", "fotografía"],
+    "accent": "#F1D27A"
+  }
+]
