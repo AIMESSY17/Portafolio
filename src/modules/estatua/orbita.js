@@ -5,7 +5,9 @@
 //   · en pantallas angostas la corona es más cerrada y las ventanas, un poco más grandes
 //   · el hover frena la corona y agranda esa ventana (su nombre lo escribe index.js en una etiqueta)
 //   · cada ventana muestra la CAPTURA del sitio (textura); el sitio real se abre solo al hacer clic
-//   · marco: un bisel fino de CROMO (extruido con chaflán) que refleja el cielo del panorama
+//   · marco: VIDRIO grueso biselado (extruido con chaflán): transparente de frente y espejado en los cantos,
+//     donde refleja el cielo del panorama (Fresnel en el shader, sin pasada de refracción)
+//   · la ventana de la sala marca su píxel en el canal alfa: el post la deja con su color real (sin tono ni LUT)
 //   · en cada sala, la ventana de ese proyecto sale de la órbita y pasa al frente, grande y quieta, exacta
 //     sobre el rectángulo de config/layout.js; al salir de la sala vuelve a su lugar en la órbita
 // Todo se crea y se sube a la placa de video al cargar; al scrollear solo cambian matrices y uniforms.
@@ -57,11 +59,25 @@ export function createOrbita(ctx, { projects, mode }) {
   const disposables = [];
   const keep = (x) => (disposables.push(x), x);
 
-  // cromo: espejo casi perfecto que refleja el entorno (el HDR del cielo)
+  // vidrio grueso: dieléctrico pulido; el shader sube la opacidad en los cantos (Fresnel), así de frente se ve a
+  // través y en los biseles brilla el reflejo del cielo
+  const glassU = { uGlassA: { value: 0.16 } };
   const chrome = keep(new THREE.MeshStandardMaterial({
-    color: '#ffffff', metalness: 1, roughness: ORBITA.chromeRoughness, envMapIntensity: 1.25,
+    color: '#f2f6ff', metalness: 0, roughness: 0.04, envMapIntensity: 2.4,
     transparent: true, opacity: 0, depthWrite: false,
   }));
+  chrome.onBeforeCompile = (sh) => {
+    Object.assign(sh.uniforms, glassU);
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nuniform float uGlassA;')
+      .replace('#include <opaque_fragment>', `#include <opaque_fragment>
+  {
+    float fr = pow(1.0 - abs(dot(normalize(vViewPosition), normalize(normal))), 2.2);
+    gl_FragColor.rgb *= 1.0 + fr * 0.8;
+    gl_FragColor.a = clamp(mix(uGlassA, 1.0, fr), 0.0, 1.0) * opacity;
+  }`);
+  };
+  chrome.customProgramCacheKey = () => 'orbita-vidrio';
   const loader = new THREE.TextureLoader();
   const loads = [], placeholders = [];
   const geos = new Map();
@@ -92,7 +108,15 @@ export function createOrbita(ctx, { projects, mode }) {
       uOpacity: { value: 0 }, uDim: { value: 1 }, uRadius: { value: ORBITA.radius }, uAspect: { value: ASPECTO },
       uHover: { value: 0 }, uBloomPass: { value: 0 }, uSheenI: { value: 0.2 },
     };
-    const mat = keep(new THREE.ShaderMaterial({ uniforms, vertexShader: SCREEN_VERTEX, fragmentShader: SCREEN_FRAGMENT, transparent: true, toneMapped: false, side: THREE.DoubleSide }));
+    const mat = keep(new THREE.ShaderMaterial({
+      uniforms, vertexShader: SCREEN_VERTEX, fragmentShader: SCREEN_FRAGMENT, transparent: true, toneMapped: false, side: THREE.DoubleSide,
+      // color normal; en el alfa del buffer: srcA × constante + destino × (1 − srcA). Con constante 0 (ventana de la
+      // sala, al frente) el píxel queda en alfa 0 y el post lo muestra con su color real
+      blending: THREE.CustomBlending, blendEquation: THREE.AddEquation, blendEquationAlpha: THREE.AddEquation,
+      blendSrc: THREE.SrcAlphaFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
+      blendSrcAlpha: THREE.ConstantAlphaFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor,
+    }));
+    mat.blendAlpha = 1;
     mat.userData.bloomUniform = uniforms.uBloomPass;
     const screen = new THREE.Mesh(g.screen, mat);
     screen.userData.projectId = project.id;
@@ -228,6 +252,7 @@ export function createOrbita(ctx, { projects, mode }) {
       u.uHover.value = it.hover;
       u.uDim.value = inRoom && !isRoom ? state.dimOthers : 1;
       u.uSheenI.value = 0.2 * (1 - e) + 0.04 * e; // al frente casi sin reflejo: el trabajo se ve claro
+      it.screen.material.blendAlpha = 1 - e;       // al frente: color real del sitio (máscara de alfa para el post)
     }
   }
 

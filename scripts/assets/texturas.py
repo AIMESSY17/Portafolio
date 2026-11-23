@@ -1,6 +1,6 @@
 ﻿# Texturas de la estatua y de la lente.
 #   marmol-2k.webp / marmol-1k.webp (Marble012, ambientCG, CC0) - UNA textura empaquetada para triplanar:
-#       R = detalle de luminancia (vetas; 0,5 = el color base de la paleta), G = rugosidad, B/A = normal X/Y (OpenGL)
+#       R = detalle de luminancia (vetas; 0,5 = el color base de la paleta), G = rugosidad (el relieve sale de R en el shader)
 #   oro-huellas-1k.webp (imperfection_0002, ShareTextures, CC0 personalizado) - mascara de huellas digitales
 #   lente/suciedad.webp (dirt_1-1K, ShareTextures, CC0 personalizado) - suciedad de la lente para el destello
 #   python -I scripts/assets/texturas.py <carpeta con los zips descomprimidos>
@@ -33,9 +33,10 @@ for size, suf in ((2048, '2k'), (1024, '1k')):
     # detalle: luminancia relativa a la media local grande (asi no trae el tono gris azulado, solo las vetas)
     base = gaussian_filter(col, size / 8, mode='wrap')
     det = np.clip(0.5 + (col - base) * 1.6, 0, 1)
-    rgba = np.stack([det, rough, nrm[..., 0], nrm[..., 1]], -1)
+    # el relieve se saca en el shader de las mismas vetas (derivadas): alcanzan dos canales (B queda en 0,5)
+    rgb = np.stack([det, rough, np.full_like(det, 0.5)], -1)
     p = os.path.join(OUT, f'marmol-{suf}.webp')
-    Image.fromarray((rgba * 255 + 0.5).astype(np.uint8), 'RGBA').save(p, 'WEBP', quality=76, alpha_quality=55, method=6)
+    Image.fromarray((rgb * 255 + 0.5).astype(np.uint8), 'RGB').save(p, 'WEBP', quality=80, method=6)
     print(p, os.path.getsize(p) // 1024, 'KB')
 
 h = carga('imperfection_0002_4k_G7BfjQ/imperfection_0002_opacity_4k.png', 'L', 1024)

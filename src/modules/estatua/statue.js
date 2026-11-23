@@ -3,7 +3,7 @@ import { loadGlb } from './models.js';
 import { bake } from './gilding-bake.js';
 import {
   gildingUniforms, GILDING_VERTEX_PARS, GILDING_VERTEX, GILDING_FRAGMENT_PARS,
-  GILDING_COLOR, GILDING_PBR, GILDING_EMISSIVE, GILDING_DIM, GILDING_BLOOM,
+  GILDING_COLOR, GILDING_PBR, GILDING_EMISSIVE, GILDING_DIM, GILDING_BLOOM, GILDING_NORMAL,
 } from './gilding.js';
 
 // La Victoria de Samotracia (v6): carga progresiva, mármol con oro que se dibuja con el scroll, cromo líquido
@@ -107,6 +107,19 @@ export function createStatue(ctx) {
     g.setAttribute('normal', new THREE.BufferAttribute(out.normal, 3));
     g.setAttribute('aStatue', new THREE.BufferAttribute(out.aStatue, 3));
     g.setAttribute('aCurv', new THREE.BufferAttribute(out.aCurv, 1));
+    // normal de la malla → espacio estatua (el triplanar del mármol usa ejes de la estatua, no de la malla)
+    U.uToStatueN.value.getNormalMatrix(toStatue);
+    // película: la punta deformada del escaneo debajo del pedestal se saca (triángulos con los tres vértices abajo)
+    const idx = g.index?.array;
+    if (idx && STATUE.cutBelow > 0) {
+      const S = out.aStatue, keep = [];
+      for (let t = 0; t < idx.length; t += 3) {
+        const a = idx[t], b = idx[t + 1], c = idx[t + 2];
+        if (S[a * 3 + 1] < STATUE.cutBelow && S[b * 3 + 1] < STATUE.cutBelow && S[c * 3 + 1] < STATUE.cutBelow) continue;
+        keep.push(a, b, c);
+      }
+      g.setIndex(keep);
+    }
     return { model, mesh };
   }
 
@@ -147,6 +160,15 @@ export function createStatue(ctx) {
   });
 
   const U = material.userData.uniforms;
+  // mármol real (2K; 1K en low) y huellas del oro: triplanar en el shader. Hasta que llegan, mármol procedural.
+  {
+    const tl = new THREE.TextureLoader();
+    const A = ctx.assetsPath;
+    const prep = (t) => { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.NoColorSpace; t.anisotropy = Math.min(8, ctx.renderer.capabilities.getMaxAnisotropy()); return t; };
+    const m = tl.load(`${A}marmol-${tier === 'low' ? '1k' : '2k'}.webp`, () => { U.uMarbleK.value = 1; });
+    const h = tl.load(`${A}oro-huellas-1k.webp`);
+    U.uMarble.value = prep(m); U.uHuellas.value = prep(h);
+  }
   U.uAlqSym.value = tier === 'low' ? 0 : tier === 'medium' ? 0.8 : 1;
   U.uTrans.value = tier === 'low' ? 0.25 : 0.5;
   U.uAO.value = tier === 'low' ? 0.4 : 0.7;
@@ -226,6 +248,7 @@ export function createStatue(ctx) {
       if (lod0 && lod0 !== current) lod0.mesh.geometry.dispose();
       reflection?.removeFromParent();
       reflMaterial.dispose();
+      U.uMarble.value?.dispose(); U.uHuellas.value?.dispose();
       material.dispose();
       blocker.geometry.dispose();
       blocker.material.dispose();
@@ -325,6 +348,8 @@ varying float vDepth;
 ` + GILDING_COLOR)
       .replace('#include <metalnessmap_fragment>', `#include <metalnessmap_fragment>
 ${GILDING_PBR}`)
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+${GILDING_NORMAL}`)
       .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
 ${GILDING_EMISSIVE}`)
       .replace('#include <aomap_fragment>', `#include <aomap_fragment>

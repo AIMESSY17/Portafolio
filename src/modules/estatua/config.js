@@ -13,6 +13,7 @@ export const STATUE = {
   // Modelo: primero carga el liviano (aparece rápido) y después lo cambia por el detallado.
   models: { preview: 'victoria-lod0.glb', full: 'victoria.glb' },
   height: 3,                      // alto final de la estatua
+  cutBelow: 0.235,                // película: se sacan los triángulos debajo de esta altura (la punta deformada del escaneo bajo el pedestal)
   position: { x: 0, y: 0.15, z: 0 }, // posición base (el flotado se suma encima)
   orientationFix: { x: -Math.PI / 2, y: 0, z: 0 }, // endereza el escaneo (viene acostado)
   rotationY: 0.9,                 // vista de tres cuartos (la clásica del Louvre)
@@ -22,7 +23,7 @@ export const STATUE = {
   sway: { amount: 0.03, speed: 0.09 },   // rotación casi imperceptible
   pointerReaction: { yaw: 0.06, pitch: 0.02 }, // cuánto "mira" hacia el cursor
   material: {
-    color: '#F4F0E9',            // mármol blanco (apenas cálido)
+    color: '#E9E2D6',            // mármol marfil (película: un poco más bajo, para que se vean los pliegues)
     shadowTint: '#CFC6B8',       // nubes del mármol
     veinColor: '#8E877D',        // vetas grises finas
     roughness: 0.36,             // pulido
@@ -122,7 +123,7 @@ export const ORBITA = {
 // en el medio de la estatua (y = center). `mobile` achica todo para que entre en pantallas angostas.
 export const ANILLOS = {
   center: 1.55,
-  band: 0.085,                   // alto de la banda
+  band: 0.042,                   // alto de la banda (película: la mitad; finos, como un astrolabio de verdad)
   tube: 0.0,                     // (reservado)
   rings: [
     { r: 1.18, tilt: 0.66, spin: 0.26, prec: -0.12, tex: 'simbolos' },
@@ -131,7 +132,7 @@ export const ANILLOS = {
     { r: 1.90, tilt: 0.28, spin: -0.1, prec: -0.07, tex: 'escala' },
   ],
   mobile: 0.62,                  // factor de tamaño en celular
-  alpha: { hero: 0.5, alq: 1 },  // opacidad: tenue arriba de las nubes, plena con la transmutación
+  alpha: { hero: 0.34, alq: 0.9 }, // opacidad: tenue arriba de las nubes, plena con la transmutación
   dust: { high: 240, medium: 130, low: 50, falling: 0.4 },
   nikeGlowDist: 110,             // px: a qué distancia del anillo del mouse empieza a brillar "ΝΙΚΗ"
 };
@@ -139,11 +140,11 @@ export const ANILLOS = {
 // Corona de ventanas (orbita.js): un aro parejo arriba de la cabeza de la estatua, inclinado, que gira lento.
 export const CORONA = {
   period: 40,                    // s por vuelta
-  tilt: -0.35,                   // rad: inclinación (el frente sube un poco; se ve en perspectiva)
-  desktop: { r: 1.3, y: 3.2, width: 0.95 },
-  mobile: { r: 0.98, y: 3.12, width: 0.8 },
-  back: { scale: 0.56, opacity: 0.42 },
-  front: { scale: 1.06 },
+  tilt: 0.35,                    // rad (~20°): el frente baja y el fondo sube; desde abajo se lee como una corona
+  desktop: { r: 1.38, y: 3.5, width: 0.6 },    // 7 ventanas de 0,6 m en un aro de 1,38 m: medio metro libre entre cada una
+  mobile: { r: 1.02, y: 3.4, width: 0.6 },     // pantalla angosta: aro más cerrado, ventanas relativamente más grandes
+  back: { scale: 0.62, opacity: 0.5 },
+  front: { scale: 1.08 },
   hoverScale: 1.38,              // la ventana sobre la que está el mouse crece
   thread: { color: '#F1D27A', opacity: 0.7 },
 };

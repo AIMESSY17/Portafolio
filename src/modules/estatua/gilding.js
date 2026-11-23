@@ -113,6 +113,14 @@ export function gildingUniforms(THREE, g) {
     uSunCol: { value: new THREE.Color('#FFC27A') },
     uTrans: { value: 0.5 },                              // luz que atraviesa el mármol fino (alas, pliegues)
     uAO: { value: 0.7 },                                 // oclusión ambiental en los huecos
+    // PELÍCULA: mármol real (Marble012, triplanar) y huellas sutiles en el oro pulido
+    uMarble: { value: null },                            // R = vetas (0,5 = color base), G = rugosidad
+    uHuellas: { value: null },                           // máscara de huellas digitales
+    uMarbleK: { value: 0 },                              // 0 hasta que carga la textura; 1 = mármol real
+    uMarbleScale: { value: 0.62 },                       // repeticiones por metro
+    uBump: { value: 0.014 },                             // relieve de las vetas (derivadas en pantalla: valores chicos)
+    uHuellaScale: { value: 1.6 },
+    uToStatueN: { value: new THREE.Matrix3() },          // normal de la malla → espacio estatua (para el triplanar)
   };
 }
 
@@ -129,6 +137,8 @@ float mFbm(vec3 p){ float a=0.5, s=0.0; for(int i=0;i<4;i++){ s+=a*mNoise(p); p*
 export const GILDING_VERTEX_PARS = /* glsl */ `
 attribute vec3 aStatue;
 attribute float aCurv;
+uniform mat3 uToStatueN;
+varying vec3 vNS;
 varying vec3 vS;
 varying float vCurv;
 varying vec4 vNA; // mármol: nube, vetas finas, máscara de vetas, máscara de vetas finas
@@ -137,6 +147,7 @@ ${NOISE_GLSL}
 `;
 export const GILDING_VERTEX = /* glsl */ `
 vS = aStatue;
+vNS = normalize(uToStatueN * objectNormal);
 vCurv = aCurv;
 {
   vec3 q = aStatue * 2.4;
@@ -147,6 +158,17 @@ vCurv = aCurv;
 `;
 
 export const GILDING_FRAGMENT_PARS = /* glsl */ `
+varying vec3 vNS;
+uniform sampler2D uMarble, uHuellas;
+uniform float uMarbleK, uMarbleScale, uBump, uHuellaScale;
+float gMarbleH = 0.5;    // vetas del mármol (para el relieve)
+float gMarbleR = 0.5;    // rugosidad del mármol
+float gHuella = 0.0;     // huellas en el oro
+// triplanar: tres proyecciones mezcladas según la normal (sin UV en el escaneo)
+vec3 triW(vec3 n){ vec3 w = pow(abs(n), vec3(4.0)); return w / (w.x + w.y + w.z + 1e-4); }
+vec4 triplanar(sampler2D t, vec3 p, vec3 w){
+  return texture2D(t, p.zy) * w.x + texture2D(t, p.xz) * w.y + texture2D(t, p.xy) * w.z;
+}
 varying vec4 vNA;
 varying vec4 vNB;
 varying vec3 vS;
@@ -294,6 +316,14 @@ float goldMask(vec3 s, float curv, float n1, float n2) {
 
 // se inserta después de <color_fragment>
 export const GILDING_COLOR = /* glsl */ `
+if (uMarbleK > 0.001) {
+  vec3 tw = triW(normalize(vNS));
+  vec4 m = triplanar(uMarble, vS * uMarbleScale, tw);
+  gMarbleH = m.r; gMarbleR = m.g;
+  // las vetas reales sobre el marfil de la paleta: el detalle oscurece o aclara apenas (0,5 = sin cambio)
+  diffuseColor.rgb *= mix(1.0, 0.84 + 0.32 * m.r, uMarbleK);
+  gHuella = triplanar(uHuellas, vS * uHuellaScale, tw).r;
+}
 {
   gGold = goldMask(vS, vCurv, vNB.y, vNB.z);
   // oro con leve variación (martillado) entre Oro y Oro brillo
@@ -333,12 +363,26 @@ roughnessFactor = mix(roughnessFactor, 0.2, gGold);
 metalnessFactor = mix(metalnessFactor, 1.0, gChrome);
 roughnessFactor = mix(roughnessFactor, 0.05, gChrome);   // cromo líquido: espejo casi perfecto
 metalnessFactor = mix(metalnessFactor, 1.0, gAlq);
-roughnessFactor = mix(roughnessFactor, 0.13, gAlq);      // oro pulido
+roughnessFactor = mix(roughnessFactor, mix(0.12, 0.3, gHuella * 0.75 * uMarbleK), gAlq);  // oro pulido, con huellas sutiles
+roughnessFactor = mix(roughnessFactor, mix(0.24, 0.5, gMarbleR), uMarbleK * (1.0 - max(gGold, gChrome)));  // mármol pulido
+`;
+
+// se inserta después de <normal_fragment_maps>: el relieve de las vetas (derivadas de la textura, sin normal map)
+export const GILDING_NORMAL = /* glsl */ `
+{
+  float bk = uBump * uMarbleK * (1.0 - 0.75 * max(gGold, gChrome));
+  vec2 dH = vec2(dFdx(gMarbleH), dFdy(gMarbleH)) * bk;
+  vec3 sx = dFdx(-vViewPosition), sy = dFdy(-vViewPosition);
+  vec3 r1 = cross(sy, normal), r2 = cross(normal, sx);
+  float det = dot(sx, r1) * faceDirection;
+  vec3 grad = sign(det) * (dH.x * r1 + dH.y * r2);
+  if (bk > 0.0001) normal = normalize(abs(det) * normal - grad);
+}
 `;
 
 // se inserta después de <emissivemap_fragment>: brillo del "lápiz" que pinta el oro
 export const GILDING_EMISSIVE = /* glsl */ `
-totalEmissiveRadiance += uPaintGlow * gPaintGlow * uGoldAmount * (1.0 - gChrome);
+totalEmissiveRadiance += uPaintGlow * gPaintGlow * uGoldAmount * (1.0 - gChrome) * (1.0 - gAlq);  // el lápiz se apaga donde ya es oro pulido
 totalEmissiveRadiance += uPaintGlow * gMolten * 1.6;     // filo de oro derretido
 totalEmissiveRadiance += uPaintGlow * (gAlqLine * 1.25 + gAlqEdge * 1.9);   // símbolos y filo de la transmutación
 {

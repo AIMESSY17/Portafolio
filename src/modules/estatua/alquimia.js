@@ -9,69 +9,62 @@
 // anillos sin relieve y sin el hilo animado.
 import { ANILLOS, CORONA } from './config.js';
 
-const GREEK = 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ';
-const SERIF = '"Times New Roman", "Palatino Linotype", "Book Antiqua", Georgia, serif';
+// Cinzel solo trae Δ y Ω del griego: el resto se escribe con las letras latinas idénticas (Ν = N, Ι = I, Κ = K…).
+// Las palabras grabadas usan solo esas: ΝΙΚΗ (victoria), ΤΕΧΝΗ (oficio), ΑΚΜΗ (cumbre).
+const LATIN = { Α: 'A', Β: 'B', Ε: 'E', Ζ: 'Z', Η: 'H', Ι: 'I', Κ: 'K', Μ: 'M', Ν: 'N', Ο: 'O', Ρ: 'P', Τ: 'T', Υ: 'Y', Χ: 'X' };
+const cinzel = (s) => [...s].map((c) => LATIN[c] || c).join('');
+const LETRAS = 'ΑΒΔΕΖΗΙΚΜΝΟΡΤΥΧΩ';
+const FONT = 'Cinzel, "Times New Roman", Georgia, serif';
 
-// ---------- texturas de las bandas (canvas): color de oro, relieve de lo grabado y brillo de las letras ----------
+// ---------- textura de UN segmento de banda (canvas); se repite N veces alrededor (repeat.x) ----------
+// así las letras quedan en su proporción real sobre la banda (antes una sola textura larga las estiraba).
 function drawBand(kind, W, H) {
   const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
   const albedo = mk(), bump = mk(), glow = mk();
   const a = albedo.getContext('2d'), b = bump.getContext('2d'), g = glow.getContext('2d');
   // base: oro con un degradé fino (un pulido real no es plano)
   const grad = a.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, '#d9ae45'); grad.addColorStop(0.5, '#f1cf7a'); grad.addColorStop(1, '#c79a30');
+  grad.addColorStop(0, '#d2a43e'); grad.addColorStop(0.5, '#f3d488'); grad.addColorStop(1, '#c39331');
   a.fillStyle = grad; a.fillRect(0, 0, W, H);
   b.fillStyle = '#9a9a9a'; b.fillRect(0, 0, W, H);   // 0.6 = nivel; lo grabado baja
   g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
   const engrave = (draw, glows = false) => {
-    // grabado: sombra oscura arriba-izquierda, luz abajo-derecha, y el hueco en el relieve
-    a.save(); a.fillStyle = a.strokeStyle = 'rgba(255,240,190,0.55)'; a.translate(1.2, 1.2); draw(a); a.restore();
-    a.save(); a.fillStyle = a.strokeStyle = 'rgba(70,44,4,0.85)'; draw(a); a.restore();
+    a.save(); a.fillStyle = a.strokeStyle = 'rgba(255,240,196,0.6)'; a.translate(1, 1); draw(a); a.restore();
+    a.save(); a.fillStyle = a.strokeStyle = 'rgba(64,40,4,0.85)'; draw(a); a.restore();
     b.save(); b.fillStyle = b.strokeStyle = '#2a2a2a'; draw(b); b.restore();
     if (glows) { g.save(); g.fillStyle = g.strokeStyle = '#ffffff'; draw(g); g.restore(); }
   };
-  const lines = (ctx) => { ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(0, H * 0.1); ctx.lineTo(W, H * 0.1); ctx.moveTo(0, H * 0.9); ctx.lineTo(W, H * 0.9); ctx.stroke(); };
-  engrave(lines);
-  const ticks = (n, h0, h1, wd) => (ctx) => { ctx.lineWidth = wd; ctx.beginPath(); for (let i = 0; i < n; i++) { const x = (i / n) * W; ctx.moveTo(x, H * h0); ctx.lineTo(x, H * h1); } ctx.stroke(); };
-  const text = (str, size, y, n, offset = 0, glows = false) => {
-    const f = (ctx) => {
-      ctx.font = `600 ${size}px ${SERIF}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      for (let i = 0; i < n; i++) ctx.fillText(typeof str === 'function' ? str(i) : str, ((i + offset) / n) * W, y);
-    };
-    engrave(f, glows);
-  };
+  // filetes finos arriba y abajo
+  engrave((ctx) => { ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(0, H * 0.12); ctx.lineTo(W, H * 0.12); ctx.moveTo(0, H * 0.88); ctx.lineTo(W, H * 0.88); ctx.stroke(); });
+  const ticks = (n, h0, h1, wd) => (ctx) => { ctx.lineWidth = wd; ctx.beginPath(); for (let i = 0; i < n; i++) { const x = ((i + 0.5) / n) * W; ctx.moveTo(x, H * h0); ctx.lineTo(x, H * h1); } ctx.stroke(); };
+  const text = (strs, size, y, glows = false, weight = 600) => engrave((ctx) => {
+    ctx.font = `${weight} ${size}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    strs.forEach((t, i) => ctx.fillText(cinzel(t), ((i + 0.5) / strs.length) * W, y));
+  }, glows);
+  const rombo = (cx) => (ctx) => { ctx.beginPath(); ctx.moveTo(cx, H * 0.4); ctx.lineTo(cx + H * 0.08, H * 0.5); ctx.lineTo(cx, H * 0.6); ctx.lineTo(cx - H * 0.08, H * 0.5); ctx.closePath(); ctx.fill(); };
   if (kind === 'alfabeto') {
-    engrave(ticks(24, 0.12, 0.22, 2));
-    engrave(ticks(24, 0.78, 0.88, 2));
-    text((i) => GREEK[i % GREEK.length], H * 0.46, H * 0.5, 24, 0.5);
+    engrave(ticks(6, 0.14, 0.24, 1.4)); engrave(ticks(6, 0.76, 0.86, 1.4));
+    text([0, 1, 2, 3, 4, 5].map((i) => LETRAS[(i * 5 + 3) % LETRAS.length]), H * 0.42, H * 0.53);
   } else if (kind === 'escala') {
-    engrave(ticks(144, 0.12, 0.3, 1.4));
-    engrave(ticks(24, 0.12, 0.46, 2.6));
-    engrave(ticks(144, 0.7, 0.88, 1.4));
-    text((i) => ['Α', 'Β', 'Γ', 'Δ', 'Ε', 'Ζ', 'Η', 'Θ', 'Ι', 'Κ', 'Λ', 'Μ'][i % 12], H * 0.3, H * 0.62, 12, 0.5);
+    engrave(ticks(36, 0.14, 0.32, 1.1)); engrave(ticks(6, 0.14, 0.5, 2)); engrave(ticks(36, 0.68, 0.86, 1.1));
+    text(['ΤΕΧΝΗ', 'ΑΚΜΗ'], H * 0.26, H * 0.66, false, 500);
   } else if (kind === 'simbolos') {
-    engrave(ticks(48, 0.12, 0.2, 1.6));
-    const sym = (ctx) => {
-      ctx.lineWidth = 2.4;
-      const n = 12, cy = H * 0.5, r = H * 0.2;
+    engrave(ticks(12, 0.14, 0.22, 1.2));
+    engrave((ctx) => {
+      ctx.lineWidth = 1.8;
+      const n = 3, cy = H * 0.53, r = H * 0.2;
       for (let i = 0; i < n; i++) {
         const cx = ((i + 0.5) / n) * W; ctx.beginPath();
-        const k = i % 4;
-        if (k === 0) { ctx.arc(cx, cy, r, 0, 7); ctx.moveTo(cx + 3, cy); ctx.arc(cx, cy, 2, 0, 7); }          // el sol
-        else if (k === 1) { ctx.moveTo(cx, cy - r); ctx.lineTo(cx + r, cy + r * 0.8); ctx.lineTo(cx - r, cy + r * 0.8); ctx.closePath(); }
-        else if (k === 2) { ctx.moveTo(cx, cy + r); ctx.lineTo(cx + r, cy - r * 0.8); ctx.lineTo(cx - r, cy - r * 0.8); ctx.closePath(); ctx.moveTo(cx - r * 0.6, cy); ctx.lineTo(cx + r * 0.6, cy); }
-        else { ctx.arc(cx, cy, r, 0.4, Math.PI - 0.4); ctx.moveTo(cx, cy - r); ctx.lineTo(cx, cy + r * 1.1); }
+        if (i === 0) { ctx.arc(cx, cy, r, 0, 7); ctx.moveTo(cx + 2.5, cy); ctx.arc(cx, cy, 2.5, 0, 7); }                       // el sol (oro)
+        else if (i === 1) { ctx.moveTo(cx, cy - r); ctx.lineTo(cx + r, cy + r * 0.8); ctx.lineTo(cx - r, cy + r * 0.8); ctx.closePath(); } // el fuego
+        else { ctx.moveTo(cx, cy + r); ctx.lineTo(cx + r, cy - r * 0.8); ctx.lineTo(cx - r, cy - r * 0.8); ctx.closePath(); ctx.moveTo(cx - r * 0.6, cy); ctx.lineTo(cx + r * 0.6, cy); } // la tierra
         ctx.stroke();
       }
-    };
-    engrave(sym);
+    });
   } else if (kind === 'nike') {
-    engrave(ticks(72, 0.12, 0.2, 1.6));
-    engrave(ticks(72, 0.8, 0.88, 1.6));
-    text('ΝΙΚΗ', H * 0.5, H * 0.5, 4, 0.5, true);
-    // adornos entre las palabras
-    const orn = (ctx) => { for (let i = 0; i < 4; i++) { const cx = (i / 4) * W; ctx.beginPath(); ctx.moveTo(cx, H * 0.36); ctx.lineTo(cx + H * 0.1, H * 0.5); ctx.lineTo(cx, H * 0.64); ctx.lineTo(cx - H * 0.1, H * 0.5); ctx.closePath(); ctx.fill(); } };
-    engrave(orn);
+    engrave(ticks(18, 0.14, 0.22, 1.2)); engrave(ticks(18, 0.78, 0.86, 1.2));
+    text(['ΝΙΚΗ'], H * 0.5, H * 0.54, true, 600);
+    engrave(rombo(0)); engrave(rombo(W));
   }
   return { albedo, bump, glow };
 }
@@ -94,14 +87,22 @@ export function createAlquimia(ctx, { statue }) {
   const rings = ANILLOS.rings.map((cfg, i) => {
     const R = cfg.r * k;
     const H = ANILLOS.band * k;
-    const W = 4096, TH = 128;
+    const W = 1024, TH = 64;
+    // cuántas veces se repite el segmento para que las letras queden en su proporción (largo = alto × W/TH)
+    const reps = Math.max(3, Math.round((2 * Math.PI * R) / (H * (W / TH))));
     const t = drawBand(cfg.tex, W, TH);
     const map = keep(new THREE.CanvasTexture(t.albedo)); map.colorSpace = THREE.SRGBColorSpace;
     const bump = keep(new THREE.CanvasTexture(t.bump));
     const glow = cfg.tex === 'nike' ? keep(new THREE.CanvasTexture(t.glow)) : null;
-    [map, bump, glow].forEach((x) => { if (x) { x.wrapS = THREE.RepeatWrapping; x.anisotropy = Math.min(8, maxAniso); } });
+    [map, bump, glow].forEach((x) => { if (x) { x.wrapS = THREE.RepeatWrapping; x.repeat.x = reps; x.anisotropy = Math.min(8, maxAniso); } });
+    // Cinzel puede llegar después: se redibuja el segmento (canvas chico, antes del precalentado)
+    document.fonts?.load?.(`600 ${TH}px Cinzel`).then(() => {
+      const t2 = drawBand(cfg.tex, W, TH);
+      map.image = t2.albedo; bump.image = t2.bump; if (glow) glow.image = t2.glow;
+      [map, bump, glow].forEach((x) => { if (x) x.needsUpdate = true; });
+    }).catch(() => {});
     const mat = keep(new THREE.MeshStandardMaterial({
-      map, bumpMap: bump, bumpScale: 1.1, color: '#ffffff', metalness: 1, roughness: 0.24, envMapIntensity: 1.35,
+      map, bumpMap: bump, bumpScale: 0.8, color: '#ffffff', metalness: 1, roughness: 0.18, envMapIntensity: 1.4,
       emissive: new THREE.Color('#ffd98a'), emissiveMap: glow, emissiveIntensity: glow ? 0.0 : 0,
       side: THREE.DoubleSide, transparent: true, opacity: 0,
     }));
