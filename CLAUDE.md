@@ -3,6 +3,44 @@
 Este archivo es el CONTRATO del proyecto. Lo leen los dos desarrolladores y sus Claude Code.
 Claude Code: leé este archivo entero antes de cualquier cambio y respetalo siempre. Si algo que te piden choca con este contrato, NO lo hagas: avisá y proponé cómo resolverlo.
 
+> **Versión 5.0 — película** (noviembre 2026). Manda sobre la 4.0 y las anteriores donde choquen. Decisiones y porqués:
+> `referencias/DECISIONES.md` (sección "Versión película").
+> - **Post de cine en UN pase** (`core/composer.js` + `core/cine.js`, pmndrs/postprocessing): la escena se dibuja a un
+>   buffer HalfFloat (luz real) → SMAA (preset LOW en low) → efecto "Cine": bloom + halación, rayos, destello
+>   anamórfico + suciedad de lente, **tono ACES** (ya no lo aplica el renderer: en targets three no aplica tono),
+>   LUT por escena con fundido, modo térmico, viñeta, grano y profundidad de campo propia (solo high). El renderer va
+>   con `antialias: false`, `alpha: false`. `renderer.toneMappingExposure` sigue siendo la perilla de exposición del
+>   fondo (el post la lee). Bloom y rayos se alternan en cuadros pares/impares. `?post=nobloom,norays,nodof,nolut,…`
+>   apaga piezas para medir.
+> - **shared.lente** = `{ lut, flare, rays, thermal, keep, negro }` (escribe fondo / ui) + `{ dof, focus, focusRange }`
+>   (escribe estatua). LUTs: `cielo | atardecer | azul | tinta | lavanda | miel | rosa | canela` (`public/assets/lente/`).
+> - **Máscara de color real**: un píxel con alfa < 1 en el buffer de la escena sale con su color tal cual (sin tono,
+>   LUT, grano ni DOF). La usa la ventana de la sala (`orbita.js`, mezcla con alfa constante). Nadie más debe escribir
+>   alfa < 1 sin querer; los materiales con mezcla normal escriben alfa 1 sobre el cielo.
+> - **Resolución dinámica** (`core/resolucion.js`): con el temporizador de GPU; baja solo si la placa pasa de 16,2 ms y
+>   se pierden cuadros 2 s seguidos; sube hasta la resolución del tier. `?resfija` la congela (y sigue midiendo).
+>   En low, debajo de 28 fps 5 s con la resolución en su piso → **versión liviana** (`ui/lite.js`, evento
+>   `calidad:piso` del core). Sin WebGL2 también. `?lite` la muestra.
+> - **Capa película** (`ui/pelicula.js` + `pelicula.css`): apertura en el HTML (silueta SVG del modelo, "<marca>
+>   presenta", iris; primera visita, localStorage `samotracia.apertura.v1`), franjas 2.39:1, títulos de capítulo I–IV,
+>   créditos finales que suben + medición real de carga y fps, visor REC (sala ZURKLIMA). La marca está en
+>   `data-marca` de `<html>`. La intro 3D vieja está apagada (`INTRO.enabled = false`).
+> - **Tipografías**: se suma **Cinzel** (`public/assets/fuentes/cinzel.woff2`, recortada) para lo "de película"
+>   (presenta, capítulos, roles de créditos, rótulos de la ficha, letras de los anillos).
+> - **Obras**: 7 salas (entra Mantra Estética con cartel). `projects.json` suma `unica`, `necesitaba`, `hicimos`,
+>   `resultado` (vacío = no se muestra). Cada sala tiene estado de luz, LUT y un detalle propio (ver DECISIONES).
+> - **Assets**: pipeline reproducible en `scripts/assets/` (cielos, estrellas, texturas, LUTs, fuente, sonidos,
+>   silueta, STL→GLB). Los cielos van codificados con Reinhard (el shader los decodifica). Modelos con meshopt.
+>   Créditos y licencias: `public/assets/CREDITOS.txt` (actualizado).
+> - **Estatua**: mármol real en triplanar (`marmol-2k/1k.webp`) + huellas en el oro; `ESTATUA_MODELO` en
+>   `estatua/config.js` ('v6' en uso; 'stw' = Scan The World, licencia sin verificar, archivos en `alternativos/`,
+>   `?modelo=stw` en desarrollo). 3 anillos; corona de 1,38 m inclinada 20°; marco de vidrio.
+> - **Carga**: póster (`public/assets/poster/`) con precarga mientras el 3D compila; el velo se funde al 3D.
+> - **Desarrollo**: `?debug` (fps, peor cuadro, calidad, resolución, GPU), `?sinui` (capturas limpias), `?demo`.
+>   QA: `qa-luz`, `qa-pelicula`, `qa-rendimiento` (EXTRA=resfija), `qa-caida`, `qa-caida-traza`, `qa-tirones`,
+>   `qa-sonda`, `qa-peso` (1920×1080 por defecto).
+> - **Presupuesto medido**: 7,3 MB escritorio / 5,6 MB celular. RX 550 a 1080p: 60 fps en todas las fases.
+
 > **Versión 4.0 — alquimia** (noviembre 2026). Manda sobre la 3.0 donde choquen:
 > - **Dueño único:** el proyecto lo lleva una sola persona. Se cancela el acuerdo de dos desarrolladores de la sección 2 y la regla de "editar solo tu carpeta": core, ui, config y módulos se pueden tocar libremente (el resto del contrato —interfaz de módulo, rendimiento, tres calidades, dispose— sigue).
 > - **Caída automática** (`core/caida.js`, la maneja `core/scroll.js`): al llegar el scroll al final del hero (`CAIDA.puerta`) se bloquea y cae sola en ~4 s (curva de velocidad propia: lenta al arrancar, rápida adentro de las nubes, freno largo a ras del agua); al terminar devuelve el scroll. Subir desde el mar repite la toma al revés. Clic, tecla o scroll fuerte la saltan (0,4 s). `prefers-reduced-motion`: fundido. `?sincaida` (dev) o `scroll.caida.enabled = false` la apagan (capturas, QA; `?p=` la apaga solo). Los saltos del menú y de las salas usan `scroll.scrollTo()`, que no la dispara. La caída mueve el scroll real cuadro a cuadro: todo lo demás sigue leyendo P.
