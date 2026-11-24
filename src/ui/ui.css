@@ -214,9 +214,11 @@ html.fuera-hero .hero { opacity: 0; transform: translateY(-8px); }
 .sala:not(.is-on) .sala__link { pointer-events: none; }
 /* legible sobre cualquier fondo (lavanda, rosa, ámbar): un velo oscuro muy suave detrás, sin bordes ni caja */
 .sala::before {
-  content: ''; position: absolute; inset: -34px -48px -44px -56px; z-index: -1; pointer-events: none;
-  background: radial-gradient(ellipse 62% 70% at 42% 50%, rgba(12, 9, 16, 0.5), rgba(12, 9, 16, 0.26) 55%, rgba(12, 9, 16, 0) 78%);
+  content: ''; position: absolute; inset: -60px -80px -70px -90px; z-index: -1; pointer-events: none;
+  background: radial-gradient(closest-side at 46% 50%, rgba(12, 9, 16, 0.52), rgba(12, 9, 16, 0.26) 58%, rgba(12, 9, 16, 0) 100%);
+  opacity: 0; transition: opacity 0.6s var(--ease-mov);
 }
+.sala.is-on::before { opacity: 1; }
 .sala > * > * { margin: 0; }
 .sala__a, .sala__b { will-change: transform, opacity; } /* la transición entre salas no repinta las sombras del texto */
 .sala__num { font: 400 11px/1 var(--font-cine); letter-spacing: 0.32em; text-transform: uppercase; color: rgba(241, 210, 122, 0.85); }

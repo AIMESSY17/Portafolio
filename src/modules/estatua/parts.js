@@ -1,4 +1,4 @@
-import { STATUE, PARTS } from './config.js';
+import { STATUE, PARTS, MODELO } from './config.js';
 import { loadGlb } from './models.js';
 
 // Partes de oro: la cabeza y los brazos de la "segunda figura" (modelo partes-oro.glb), flotando
@@ -189,7 +189,7 @@ if (uBloomPass > 0.5) gl_FragColor.rgb *= uBloomK; // en el resplandor, apenas`)
       uniforms.uLines.value = state.lines;
       uniforms.uFill.value = state.fill;
       uniforms.uTime.value = time;
-      outer.visible = state.enabled && state.lines > 0.001 && meshes.length > 0;
+      outer.visible = MODELO.partes && state.enabled && state.lines > 0.001 && meshes.length > 0; // con otro escaneo no calzan
     },
     setVisible(v) { state.enabled = v; },
     /** Brillo de las piezas de oro (1 = normal). Lo bajan las salas junto con el mármol. */

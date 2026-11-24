@@ -9,16 +9,31 @@
 // quedan en el repo, sin usarse). Con ESTATUA_V6 = true vuelve la v6 vieja tal cual era (index-v6.js).
 export const ESTATUA_V6 = false;
 
+// MODELO DE LA ESTATUA (película)
+//   'v6'  EN USO: "Nike of Samothrace" de p_moraiti (Sketchfab), CC BY 4.0.
+//   'stw' Scan The World (MyMiniFactory, objeto 2073): muchísimo más detalle (300 mil triángulos, 0,93 MB con meshopt),
+//         pero la LICENCIA NO SE PUDO VERIFICAR. Sus archivos están en alternativos/estatua/, FUERA de public: no se
+//         publican. En desarrollo se prueba con ?modelo=stw (sin la cabeza ni los brazos de oro de la v6, que están
+//         calibrados para el otro escaneo). Para usarlo de verdad: confirmar la licencia y el crédito que pide, mover
+//         los dos .glb a public/assets/estatua/ (y sacar el '../../alternativos/estatua/' de abajo) y poner 'stw'.
+const MODELO_URL = import.meta.env.DEV ? new URLSearchParams(location.search).get('modelo') : null;
+export const ESTATUA_MODELO = MODELO_URL === 'stw' ? 'stw' : 'v6';
+const MODELOS = {
+  v6: { preview: 'victoria-lod0.glb', full: 'victoria.glb', cutBelow: 0.235, smooth: 3, partes: true },
+  stw: { preview: '../../alternativos/estatua/victoria-stw-lod0.glb', full: '../../alternativos/estatua/victoria-stw.glb', cutBelow: 0, smooth: 1, partes: false },
+};
+export const MODELO = MODELOS[ESTATUA_MODELO];
+
 export const STATUE = {
   // Modelo: primero carga el liviano (aparece rápido) y después lo cambia por el detallado.
-  models: { preview: 'victoria-lod0.glb', full: 'victoria.glb' },
+  models: { preview: MODELO.preview, full: MODELO.full },
   height: 3,                      // alto final de la estatua
-  cutBelow: 0.235,                // película: se sacan los triángulos debajo de esta altura (la punta deformada del escaneo bajo el pedestal)
+  cutBelow: MODELO.cutBelow,      // película: se sacan los triángulos debajo de esta altura (la punta deformada del escaneo v6 bajo el pedestal)
   position: { x: 0, y: 0.15, z: 0 }, // posición base (el flotado se suma encima)
   orientationFix: { x: -Math.PI / 2, y: 0, z: 0 }, // endereza el escaneo (viene acostado)
   rotationY: 0.9,                 // vista de tres cuartos (la clásica del Louvre)
   scale: 1,                       // multiplicador extra sobre `height`
-  smoothNormals: 3,               // pasadas de suavizado de normales del escaneo (worker, gilding-bake.js). Con 6 el worker tarda más que la espera de carga y el modelo llegaba en medio del scroll
+  smoothNormals: MODELO.smooth,   // pasadas de suavizado de normales del escaneo (worker, gilding-bake.js). Con 6 el worker tarda más que la espera de carga y el modelo llegaba en medio del scroll
   float: { amplitude: 0.04, period: 6 }, // sube y baja ±4 cm cada 6 s
   sway: { amount: 0.03, speed: 0.09 },   // rotación casi imperceptible
   pointerReaction: { yaw: 0.06, pitch: 0.02 }, // cuánto "mira" hacia el cursor
