@@ -36,7 +36,7 @@ export function createCore({ sections, stage, overlay }) {
     basePR: () => TIER_SETTINGS[quality].pixelRatio(),
     forced: new URLSearchParams(location.search).has('resfija'),
     targetMs: 16.7, // siempre apunta a 60 (en celular, si no llega, baja hasta su piso y el piso de calidad es 30)
-    maxScale: () => (quality === 'low' ? 1 : 1.25), // en low nunca dibuja más fino que el tier
+    maxScale: () => 1, // sube hasta la resolución del tier, no más (el supermuestreo hacía oscilar al entrar a las salas)
     busy: () => shared.caida.on || Math.abs(scroll.state.velocity) > 1.5 || document.documentElement.classList.contains('is-project-open'),
     onApply: (pr) => { renderer.setPixelRatio(pr); composer.setSize(innerWidth, innerHeight); },
   });

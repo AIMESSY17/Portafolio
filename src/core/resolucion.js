@@ -17,7 +17,7 @@ export function createResolucion({ renderer, basePR, onApply, forced = false, ta
   // con una pantalla común (×1) y placa sobrada se puede dibujar un poco más fino que la pantalla (supermuestreo)
   const recalcMax = () => { st.max = Math.min(2, dpr * 1.25) / Math.max(0.5, basePR()); st.max = Math.max(1, Math.min(st.max, maxScale())); };
   recalcMax();
-  let holds = 0, cool = 1.5, acc = 0, n = 0, accF = 0, nF = 0, good = 0, upWait = 6, lastUpAt = -1e9, t = 0;
+  let holds = 0, cool = 1.5, acc = 0, n = 0, accF = 0, nF = 0, good = 0, upWait = 6, lastUpAt = -1e9, t = 0, missed = 0;
   // pool de consultas de tiempo (los resultados llegan 1–3 cuadros después)
   const pool = [], pending = [];
   let active = null;
@@ -36,7 +36,7 @@ export function createResolucion({ renderer, basePR, onApply, forced = false, ta
     state: st,
     /** Al empezar el cuadro (antes de dibujar). */
     begin() {
-      if (!ext || forced || active) return;
+      if (!ext || active) return;
       active = pool.pop() || gl.createQuery();
       gl.beginQuery(ext.TIME_ELAPSED_EXT, active);
     },
@@ -54,7 +54,11 @@ export function createResolucion({ renderer, basePR, onApply, forced = false, ta
         pool.push(q);
         if (!disjoint && ns > 0) { acc += ns / 1e6; n++; }
       }
-      if (forced) return;
+      if (forced) { // ?resfija: mide (para ?debug y las pruebas) pero no cambia nada
+        accF += dt * 1000; nF++;
+        if (accF >= 1000) { st.frameMs = accF / nF; if (n) st.gpuMs = acc / n; accF = nF = acc = n = 0; }
+        return;
+      }
       t += dt;
       if (holds > 0 || document.hidden) { acc = n = accF = nF = 0; return; }
       if (cool > 0) { cool -= dt; acc = n = accF = nF = 0; return; }
@@ -65,16 +69,21 @@ export function createResolucion({ renderer, basePR, onApply, forced = false, ta
       const useGpu = ext && n >= 6;
       accF = nF = acc = n = 0;
       // Cada cambio rehace los buffers del post (un cuadro de ~40 ms en una placa chica): solo se cambia cuando hace
-      // falta de verdad. BAJA si se están perdiendo cuadros (ritmo real > 1,07 × objetivo durante 1 s) y la placa es la
-      // culpable (si hay temporizador). SUBE solo con la escena tranquila (ni caída ni scroll rápido) y mucho margen.
+      // falta de verdad. BAJA si se pierden cuadros DOS segundos seguidos y la placa es la culpable (con temporizador:
+      // más de 0,97 × objetivo; un tirón de CPU no cuenta). Medido en la RX 550 a 1080p: salas 13–14 ms, cielo 8 ms:
+      // con el umbral viejo (0,85) cualquier tirón la hacía bajar sin necesidad. SUBE de vuelta (hasta la resolución
+      // del tier, sin supermuestreo) con la escena tranquila y margen claro.
       const missing = st.frameMs > targetMs * 1.07;
-      if (missing && (!useGpu || st.gpuMs > targetMs * 0.85)) {
+      const gpuBound = !useGpu || st.gpuMs > targetMs * 0.97;
+      missed = missing && gpuBound ? missed + 1 : 0;
+      if (missed >= 2) {
+        missed = 0;
         if (t - lastUpAt < 4) upWait = Math.min(40, upWait * 2); // la subida no se sostuvo
-        const k = useGpu ? Math.sqrt((targetMs * 0.78) / st.gpuMs) : (targetMs * 0.95) / st.frameMs;
+        const k = useGpu ? Math.sqrt((targetMs * 0.8) / st.gpuMs) : (targetMs * 0.95) / st.frameMs;
         apply(st.s * Math.max(0.8, Math.min(0.94, k)));
         return;
       }
-      const room = useGpu ? st.gpuMs < targetMs * 0.55 : st.frameMs < targetMs * 1.02;
+      const room = useGpu ? st.gpuMs * (1 / st.s) * (1 / st.s) < targetMs * 0.72 : st.frameMs < targetMs * 1.02; // costo estimado a escala 1
       if (room && st.s < st.max && !busy()) { if (++good >= upWait) { lastUpAt = t; apply(st.s + 0.06); } } else if (!room) good = 0;
     },
     /** Un módulo está precompilando: no se mide. */

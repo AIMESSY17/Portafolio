@@ -21,7 +21,7 @@
 }
 .apertura__marca { font-weight: 500; letter-spacing: 0.34em; color: #f1d27a; }
 .apertura__pres { font-size: 0.78em; letter-spacing: 0.6em; color: rgba(233, 210, 154, 0.7); }
-@keyframes presenta { from { opacity: 0; transform: translateY(8px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes presenta { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .apertura__saltar {
   position: absolute; left: 0; right: 0; bottom: calc(var(--franja, 9vh) + 18px); margin: 0; text-align: center;
   font: 300 10px/1 var(--font-datos); letter-spacing: 0.3em; text-transform: uppercase; color: rgba(233, 210, 154, 0.38);
@@ -36,7 +36,7 @@ html.con-apertura .menu, html.con-apertura .wa, html.con-apertura .sonido, html.
 
 /* ---------- título de capítulo ---------- */
 .capitulo {
-  position: fixed; left: 0; right: 0; top: 50%; z-index: 56; transform: translateY(-50%);
+  position: fixed; left: 0; right: 0; top: 50%; z-index: 56; transform: translateY(-50%); will-change: transform, opacity;
   display: flex; flex-direction: column; align-items: center; gap: 14px;
   pointer-events: none; text-align: center; color: #f6ecd2; opacity: 0;
   text-shadow: 0 0 30px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.35);
@@ -45,11 +45,12 @@ html.con-apertura .menu, html.con-apertura .wa, html.con-apertura .sonido, html.
 .capitulo__num::before, .capitulo__num::after { content: ''; display: inline-block; width: 38px; height: 1px; margin: 0 16px; vertical-align: middle; background: currentColor; opacity: 0.6; }
 .capitulo__titulo { font: 400 clamp(30px, 3.6vw, 58px)/1 var(--font-cine); letter-spacing: 0.18em; padding-left: 0.18em; text-transform: uppercase; }
 .capitulo.is-on { animation: capitulo 1.5s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+/* solo opacidad y transformación (sin blur ni espaciado animado: no repinta en cada cuadro) */
 @keyframes capitulo {
-  0% { opacity: 0; letter-spacing: 0.1em; filter: blur(6px); }
-  24% { opacity: 1; filter: none; }
-  72% { opacity: 1; }
-  100% { opacity: 0; filter: blur(3px); }
+  0% { opacity: 0; transform: translateY(-50%) scale(0.97); }
+  24% { opacity: 1; transform: translateY(-50%) scale(1); }
+  72% { opacity: 1; transform: translateY(-50%) scale(1.01); }
+  100% { opacity: 0; transform: translateY(-50%) scale(1.02); }
 }
 
 /* ---------- créditos finales (a la hora azul) ---------- */

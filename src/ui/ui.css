@@ -218,6 +218,7 @@ html.fuera-hero .hero { opacity: 0; transform: translateY(-8px); }
   background: radial-gradient(ellipse 62% 70% at 42% 50%, rgba(12, 9, 16, 0.5), rgba(12, 9, 16, 0.26) 55%, rgba(12, 9, 16, 0) 78%);
 }
 .sala > * > * { margin: 0; }
+.sala__a, .sala__b { will-change: transform, opacity; } /* la transición entre salas no repinta las sombras del texto */
 .sala__num { font: 400 11px/1 var(--font-cine); letter-spacing: 0.32em; text-transform: uppercase; color: rgba(241, 210, 122, 0.85); }
 .sala__unica {
   margin-top: 12px !important;

@@ -6,7 +6,7 @@ import fs from 'node:fs';
 const N = JSON.parse(fs.readFileSync(new URL('../src/data/projects.json', import.meta.url), 'utf8')).length;
 const [, , base = 'http://localhost:5199', tier = 'high', limit = '22'] = process.argv;
 const browser = await chromium.launch({ channel: 'chrome', headless: true, args: ['--ignore-gpu-blocklist', '--enable-gpu-rasterization', '--use-angle=d3d11', '--hide-scrollbars'] });
-const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
+const page = await (await browser.newContext({ viewport: { width: Number(process.env.W || 1920), height: Number(process.env.H || 1080) } })).newPage();
 const logs = [];
 page.on('console', (m) => logs.push(`${(performance.now() / 1000).toFixed(1)}s ${m.type()}: ${m.text().slice(0, 200)}`));
 await page.goto(`${base}/?nointro${tier === "auto" ? "" : `&quality=${tier}`}`, { waitUntil: 'domcontentloaded' });
@@ -15,12 +15,13 @@ const rec = (ms, script) => page.evaluate(([ms, script]) => new Promise((done) =
   const out = []; let last = performance.now(); const t0 = last;
   const loop = () => {
     const now = performance.now(); const dt = now - last; last = now;
-    out.push([+(now - t0).toFixed(0), +dt.toFixed(1), +((scrollY + innerHeight * 0.5) / innerHeight).toFixed(2)]);
+    out.push([+now.toFixed(0), +dt.toFixed(1), +((scrollY + innerHeight * 0.5) / innerHeight).toFixed(2)]);
     if (now - t0 < ms) requestAnimationFrame(loop); else done(out);
   };
   requestAnimationFrame(loop);
   if (script) (0, eval)(script);
 }), [ms, script]);
+await page.evaluate(() => { window.__ev = []; const t = () => performance.now(); ['caida:inicio', 'caida:fin', 'sala:change', 'section:change', 'quality:change'].forEach((n) => window.core.bus.on(n, (d) => { if (n !== 'sala:change' || !window.__ev.length || window.__ev[window.__ev.length - 1][1] !== d?.id) window.__ev.push([+t().toFixed(0), n === 'sala:change' ? d?.id : n]); })); });
 const quiet = await rec(7000, null);
 const sc = await rec(16000, `(() => { const L = window.core.scroll.lenis; const max = document.documentElement.scrollHeight - innerHeight; L.scrollTo(max, { duration: 14, easing: (t) => t }); })()`);
 const show = (name, arr) => {
@@ -32,6 +33,7 @@ const show = (name, arr) => {
 await page.evaluate(() => { const el = document.querySelector('[data-section="obras"]'); window.core.scroll.lenis.scrollTo(el.offsetTop + 10, { immediate: true, force: true }); });
 await page.waitForTimeout(2000);
 const rooms = await rec(10000, `(() => { const el = document.querySelector('[data-section="obras"]'); const h = el.offsetHeight / ${N}; let i = 1; window.__sx = setInterval(() => { window.core.scroll.lenis.scrollTo(el.offsetTop + h * ((i++ % ${N}) + 0.5), { duration: 0.9 }); }, 1300); setTimeout(() => clearInterval(window.__sx), 9200); })()`);
+console.log('eventos (ms de página):', JSON.stringify(await page.evaluate(() => window.__ev.slice(0, 30))));
 show('quieto', quiet);
 show('scroll', sc);
 show('salas', rooms);
