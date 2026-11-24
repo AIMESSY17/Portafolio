@@ -153,8 +153,8 @@ html.en-caida .menu, html.en-caida .wa, html.en-caida .sonido, html.en-caida .he
   padding: 4px 0;
   border: 0;
   background: transparent;
-  color: rgba(255, 255, 255, 0.5);
-  font: 300 10px/1 var(--font-datos);
+  color: rgba(255, 255, 255, 0.78);
+  font: 300 11px/1 var(--font-datos);
   letter-spacing: 0.08em;
   cursor: pointer;
   pointer-events: auto;
@@ -162,7 +162,7 @@ html.en-caida .menu, html.en-caida .wa, html.en-caida .sonido, html.en-caida .he
   transition: opacity 1.4s var(--ease-entrada) 0.8s, color 0.6s var(--ease-mov);
 }
 html.is-ready .sonido { opacity: 1; }
-html[data-tono='oscuro'] .sonido { color: rgba(26, 22, 18, 0.55); }
+html[data-tono='oscuro'] .sonido { color: rgba(26, 22, 18, 0.78); }
 .sonido i { width: 5px; height: 5px; border-radius: 50%; border: 1px solid currentColor; transition: background 0.4s var(--ease-mov); }
 .sonido.is-on i { background: var(--oro-brillo); border-color: var(--oro-brillo); }
 .sonido:hover { color: var(--oro-brillo); }
@@ -179,7 +179,7 @@ html[data-tono='oscuro'] .sonido { color: rgba(26, 22, 18, 0.55); }
   font: 400 clamp(12px, 1.05vw, 15px)/1.4 var(--font-cine, serif);
   letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: var(--texto-2);
+  color: var(--texto);
   text-align: center;
   opacity: 0;
   transform: translateY(10px);
@@ -230,7 +230,7 @@ html.fuera-hero .hero { opacity: 0; transform: translateY(-8px); }
 .sala__nombre { margin-top: 14px !important; font: 400 clamp(32px, 2.9vw, 50px)/0.98 var(--font-serif); letter-spacing: -0.012em; text-wrap: balance; }
 .sala__rubro { margin-top: 6px !important; font: italic 400 clamp(16px, 1.2vw, 20px)/1.25 var(--font-serif); color: rgba(243, 238, 230, 0.78); }
 .sala__b { margin: 0; padding-top: 26px; display: grid; gap: 10px; }
-.sala__fila { display: grid; grid-template-columns: 88px 1fr; gap: 10px; align-items: baseline; }
+.sala__fila { display: grid; grid-template-columns: 88px 1fr; gap: 10px; align-items: baseline; margin: 0; }
 .sala__fila[hidden] { display: none; }
 .sala__fila dt { font: 400 10px/1.4 var(--font-cine); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(241, 210, 122, 0.95); }
 .sala__fila dd { margin: 0; font: 300 14px/1.5 var(--font-datos); color: rgba(243, 238, 230, 0.86); }

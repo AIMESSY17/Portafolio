@@ -7,7 +7,7 @@
     <!-- MARCA: el nombre que firma la película está en data-marca (arriba) y en estos títulos. Cambialo en los dos. -->
     <title>Javier Baez — Diseño y desarrollo web</title>
     <meta name="description" content="Una película interactiva: la Victoria de Samotracia baja del cielo al mar, se transmuta en oro y corona las obras. Diseño y desarrollo web en Comodoro Rivadavia." />
-    <link rel="canonical" href="/" />
+    <!-- al publicar: <link rel="canonical" href="https://TU-DOMINIO/" /> (tiene que ser la dirección completa) -->
     <!-- compartir (Open Graph / Twitter) -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Javier Baez — Diseño y desarrollo web" />
@@ -24,7 +24,10 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@200;300;400&display=swap" rel="stylesheet" />
+    <!-- las fuentes de Google no bloquean el primer pintado (el póster y la apertura no las necesitan) -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@200;300;400&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@200;300;400&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@200;300;400&display=swap" rel="stylesheet" /></noscript>
     <link rel="preload" href="/assets/fuentes/cinzel.woff2" as="font" type="font/woff2" crossorigin />
     <!-- póster: una foto fija del cielo mientras el 3D carga atrás (aparece en menos de 2 s) -->
     <link rel="preload" as="image" href="/assets/poster/cielo-escritorio.webp" media="(min-aspect-ratio: 1/1)" fetchpriority="high" />
@@ -141,12 +144,12 @@
         <h2 class="sala__nombre"></h2>
         <p class="sala__rubro"></p>
       </div>
-      <dl class="sala__b">
-        <div class="sala__fila" data-fila="necesitaba"><dt>Necesitaba</dt><dd></dd></div>
-        <div class="sala__fila" data-fila="hicimos"><dt>Hicimos</dt><dd></dd></div>
-        <div class="sala__fila" data-fila="resultado"><dt>Resultado</dt><dd></dd></div>
+      <div class="sala__b">
+        <dl class="sala__fila" data-fila="necesitaba"><dt>Necesitaba</dt><dd></dd></dl>
+        <dl class="sala__fila" data-fila="hicimos"><dt>Hicimos</dt><dd></dd></dl>
+        <dl class="sala__fila" data-fila="resultado"><dt>Resultado</dt><dd></dd></dl>
         <a class="sala__link" target="_blank" rel="noopener" hidden><span>Ver sitio</span> ↗</a>
-      </dl>
+      </div>
     </aside>
 
     <!-- Capa superior para módulos (visor de proyectos) -->

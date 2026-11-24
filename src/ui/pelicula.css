@@ -24,7 +24,7 @@
 @keyframes presenta { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .apertura__saltar {
   position: absolute; left: 0; right: 0; bottom: calc(var(--franja, 9vh) + 18px); margin: 0; text-align: center;
-  font: 300 10px/1 var(--font-datos); letter-spacing: 0.3em; text-transform: uppercase; color: rgba(233, 210, 154, 0.38);
+  font: 300 10px/1 var(--font-datos); letter-spacing: 0.3em; text-transform: uppercase; color: rgba(233, 210, 154, 0.7);
   opacity: 0; animation: presenta 1s ease 1.2s forwards;
 }
 html.apertura-salto .apertura { animation: none; opacity: 0; transition: opacity 0.42s cubic-bezier(0.65, 0, 0.35, 1); }

@@ -3,7 +3,7 @@
 import { chromium } from 'playwright';
 const base = process.argv[2];
 const browser = await chromium.launch({ channel: 'chrome', headless: true, args: ['--ignore-gpu-blocklist', '--use-angle=d3d11'] });
-for (const [name, opt] of [['escritorio (alta)', { viewport: { width: 1440, height: 900 } }], ['celular (baja)', { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }]]) {
+for (const [name, opt] of [['escritorio (alta)', { viewport: { width: 1920, height: 1080 } }], ['celular (baja)', { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }]]) {
   const ctx = await browser.newContext(opt);
   const page = await ctx.newPage();
   const cdp = await ctx.newCDPSession(page);
